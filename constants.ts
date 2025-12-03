@@ -8,7 +8,7 @@ export const MOCK_PARTNERS: Partner[] = [
     id: 'u1', // Я (Ирина)
     fohowId: 'RUY68240115001',
     name: 'Ирина Васильева',
-    rank: Rank.PHOENIX,
+    rank: Rank.DIAMOND_5,
     country: 'Россия',
     city: 'Тюмень',
     phone: '+7 900 123 45 67',
@@ -143,7 +143,7 @@ export const MOCK_PARTNERS: Partner[] = [
     id: 'c1', // Клиент
     fohowId: 'RUY000000000005',
     name: 'Новый Клиент',
-    rank: Rank.DISTRIBUTOR,
+    rank: Rank.NOVICE,
     country: 'Россия',
     city: 'Омск',
     phone: '',

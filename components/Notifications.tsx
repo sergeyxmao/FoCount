@@ -46,7 +46,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, partners, 
                   <div className="flex gap-2 mt-2">
                     <button 
                       onClick={() => onAccept(notif)}
-                      className="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
+                      className="flex-1 bg-amber-600 text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
                     >
                       <Icons.Check /> Подтвердить
                     </button>

@@ -15,7 +15,7 @@ npm install
 npm start
 ```
 
-## API Endpoints
+## API Endpoints 
 
 ### Прокси к FOHOW-proekt-v3:
 - `GET /api/partners` — список партнёров

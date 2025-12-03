@@ -53,7 +53,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
           {isBroadcast ? (
             <div className="flex flex-col">
               <h3 className="font-bold text-gray-900">Рассылка: {broadcastRank}</h3>
-              <span className="text-xs text-emerald-600">Сообщение получат все партнёры ранга</span>
+              <span className="text-xs text-amber-600">Сообщение получат все партнёры ранга</span>
             </div>
           ) : (
              <div className="flex items-center gap-3">
@@ -64,7 +64,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
               />
               <div className="flex flex-col">
                 <h3 className="font-bold text-gray-900">{partner?.name}</h3>
-                <span className="text-xs text-emerald-600">{partner?.rank}</span>
+                <span className="text-xs text-amber-600">{partner?.rank}</span>
               </div>
             </div>
           )}
@@ -104,12 +104,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
               <div
                 className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${
                   isMe
-                    ? 'bg-emerald-600 text-white rounded-br-none'
+                    ? 'bg-amber-600 text-white rounded-br-none'
                     : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none shadow-sm'
                 }`}
               >
                 {msg.text}
-                <div className={`text-[10px] mt-1 text-right ${isMe ? 'text-emerald-200' : 'text-gray-400'}`}>
+                <div className={`text-[10px] mt-1 text-right ${isMe ? 'text-amber-200' : 'text-gray-400'}`}>
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
@@ -137,13 +137,13 @@ const ChatScreen: React.FC<ChatScreenProps> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isBroadcast ? "Текст рассылки..." : "Сообщение..."}
-            className="flex-1 bg-gray-100 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="flex-1 bg-gray-100 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           />
           <button
             onClick={handleSend}
             disabled={!input.trim()}
-            className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md disabled:opacity-50 disabled:shadow-none"
+            className="w-12 h-12 bg-amber-600 text-white rounded-full flex items-center justify-center shadow-md disabled:opacity-50 disabled:shadow-none"
           >
             <Icons.Send />
           </button>

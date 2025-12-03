@@ -65,7 +65,7 @@ const Assistant: React.FC = () => {
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                 msg.role === 'user'
-                  ? 'bg-emerald-600 text-white rounded-br-none'
+                  ? 'bg-amber-600 text-white rounded-br-none'
                   : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
               }`}
             >
@@ -76,9 +76,9 @@ const Assistant: React.FC = () => {
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-white rounded-2xl rounded-bl-none px-4 py-3 border border-gray-100 shadow-sm flex items-center gap-2">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+              <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
             </div>
           </div>
         )}
@@ -91,7 +91,7 @@ const Assistant: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Спросите о маркетинге..."
-            className="flex-1 bg-gray-100 text-gray-900 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none h-12 max-h-32"
+            className="flex-1 bg-gray-100 text-gray-900 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none h-12 max-h-32"
             rows={1}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -103,7 +103,7 @@ const Assistant: React.FC = () => {
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg disabled:opacity-50 disabled:shadow-none active:scale-95 transition-all"
+            className="w-12 h-12 bg-amber-600 text-white rounded-full flex items-center justify-center shadow-lg disabled:opacity-50 disabled:shadow-none active:scale-95 transition-all"
           >
             <Icons.Send />
           </button>

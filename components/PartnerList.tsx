@@ -96,19 +96,19 @@ const PartnerList: React.FC<PartnerListProps> = ({
     <div className="flex gap-2 overflow-x-auto no-scrollbar mb-4">
        <button 
          onClick={() => setTeamSubTab('mentors')}
-         className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'mentors' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
+         className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'mentors' ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
        >
          Наставники
        </button>
        <button 
          onClick={() => { setTeamSubTab('structure'); setSelectedRank(null); }}
-         className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'structure' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
+         className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'structure' ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
        >
          Моя структура
        </button>
        <button 
        onClick={() => { setTeamSubTab('ranks'); setSelectedRank(Rank.EMERALD); }}
-        className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'ranks' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
+        className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'ranks' ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
       >
         По статусу
       </button>
@@ -123,7 +123,7 @@ const PartnerList: React.FC<PartnerListProps> = ({
           onClick={() => setSelectedRank(rank)}
           className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
             selectedRank === rank 
-              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+              ? 'bg-amber-100 text-amber-800 border border-amber-200' 
               : 'bg-white text-gray-500 border border-gray-200'
           }`}
         >
@@ -149,7 +149,7 @@ const PartnerList: React.FC<PartnerListProps> = ({
         </div>
         <input
           type="text"
-          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
           placeholder={getSearchPlaceholder()}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -166,7 +166,7 @@ const PartnerList: React.FC<PartnerListProps> = ({
       {activeTab === 'team' && teamSubTab === 'ranks' && selectedRank && filteredList.length > 0 && onBroadcast && (
           <button 
             onClick={() => onBroadcast(selectedRank, filteredList)}
-            className="w-full mb-4 bg-emerald-50 text-emerald-700 border border-emerald-200 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold active:bg-emerald-100"
+            className="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold active:bg-amber-100"
           >
              <Icons.Mail />
              Написать всем ({filteredList.length})
@@ -205,7 +205,7 @@ const PartnerList: React.FC<PartnerListProps> = ({
                   <div className="flex justify-between items-start">
                     <h3 className="text-base font-bold text-gray-900 truncate">{partner.name}</h3>
                     {partner.rank && (
-                        <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full uppercase tracking-wide font-bold">
+                        <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wide font-bold">
                             {partner.rank.split(' ')[0]}
                         </span>
                     )}

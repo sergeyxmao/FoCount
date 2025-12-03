@@ -1,20 +1,48 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# FOgrup (FoCount) — Справочник партнёров FOHOW
 
-# Run and deploy your AI Studio app
+## Структура проекта
 
-This contains everything you need to run your app locally.
+- `/api` — Backend API (Node.js + Fastify, порт 4001)
+- `/frontend` — Фронтенд (Next.js) — *в разработке*
 
-View your app in AI Studio: https://ai.studio/apps/drive/1o7rzH3m81a2N439Zx99LynCL0YhR3HNZ
+## Установка и запуск Backend
 
-## Run Locally
+```bash
+cd api
+cp .env.example .env
+# Настроить переменные в .env
+npm install
+npm start
+```
 
-**Prerequisites:**  Node.js
+## API Endpoints
 
+### Прокси к FOHOW-proekt-v3:
+- `GET /api/partners` — список партнёров
+- `GET /api/partners/:id` — профиль партнёра
+- `POST /api/relationships` — создать запрос на связь
+- `PUT /api/relationships/:id` — ответить на запрос
+- `GET /api/relationships/my` — мои связи
+- `POST /api/users/block` — заблокировать пользователя
+- `DELETE /api/users/block/:id` — разблокировать
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Собственные эндпоинты:
+- `GET /api/chats` — список чатов
+- `POST /api/chats` — создать чат
+- `GET /api/chats/:id/messages` — сообщения
+- `POST /api/chats/:id/messages` — отправить сообщение
+- `GET /api/notifications` — уведомления
+- `PUT /api/notifications/:id/read` — отметить прочитанным
+- `GET /api/notifications/unread-count` — количество непрочитанных
+
+## Архитектура
+
+FOgrup работает в связке с FOHOW-proekt-v3:
+- FOHOW-proekt-v3 (порт 4000) — основной API
+- FOgrup API (порт 4001) — дополнительный функционал
+
+## Деплой
+
+Сервер: `217.114.5.69`
+- Backend: systemd сервис `fogrup-api.service`
+- Nginx: `/fogrup-api/` → `http://localhost:4001`

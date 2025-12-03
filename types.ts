@@ -1,9 +1,11 @@
 export enum Rank {
-  DISTRIBUTOR = 'Дистрибьютор',
+  NOVICE = 'Новичок',
   EMERALD = 'Изумруд',
   SAPPHIRE = 'Сапфир',
-  DIAMOND = 'Бриллиант',
-  PHOENIX = 'Феникс',
+  ALMAZ = 'Алмаз',
+  DIAMOND_3 = 'Бриллиант 3 карата',
+  DIAMOND_5 = 'Бриллиант 5 карат',
+  DIAMOND_7 = 'Бриллиант 7 карат',
   AMBASSADOR = 'Амбассадор'
 }
 

@@ -19,6 +19,48 @@
         -webkit-tap-highlight-color: transparent;
         background-color: #f3f4f6;
       }
+
+      /* Gold palette to replace any green accents */
+      :root {
+        --gold-900: 139 107 4;
+        --gold-800: 160 120 7;
+        --gold-700: 185 137 15;
+        --gold-600: 212 175 55;
+        --gold-500: 227 196 90;
+        --gold-400: 239 216 123;
+        --gold-200: 247 230 184;
+        --gold-100: 253 244 220;
+        --gold-50: 255 249 237;
+      }
+
+      /* Override Tailwind amber utilities with gold shades */
+      .bg-amber-800 { --tw-bg-opacity: 1; background-color: rgb(var(--gold-800) / var(--tw-bg-opacity)) !important; }
+      .bg-amber-700 { --tw-bg-opacity: 1; background-color: rgb(var(--gold-700) / var(--tw-bg-opacity)) !important; }
+      .bg-amber-600 { --tw-bg-opacity: 1; background-color: rgb(var(--gold-600) / var(--tw-bg-opacity)) !important; }
+      .bg-amber-500 { --tw-bg-opacity: 1; background-color: rgb(var(--gold-500) / var(--tw-bg-opacity)) !important; }
+      .bg-amber-400 { --tw-bg-opacity: 1; background-color: rgb(var(--gold-400) / var(--tw-bg-opacity)) !important; }
+      .bg-amber-200 { --tw-bg-opacity: 1; background-color: rgb(var(--gold-200) / var(--tw-bg-opacity)) !important; }
+      .bg-amber-100 { --tw-bg-opacity: 1; background-color: rgb(var(--gold-100) / var(--tw-bg-opacity)) !important; }
+      .bg-amber-50  { --tw-bg-opacity: 1; background-color: rgb(var(--gold-50)  / var(--tw-bg-opacity)) !important; }
+
+      .text-amber-800 { color: rgb(var(--gold-900)) !important; }
+      .text-amber-700 { color: rgb(var(--gold-800)) !important; }
+      .text-amber-600 { color: rgb(var(--gold-600)) !important; }
+      .text-amber-200 { color: rgb(var(--gold-200)) !important; }
+
+      .border-amber-900 { border-color: rgb(var(--gold-900)) !important; }
+      .border-amber-600 { border-color: rgb(var(--gold-600)) !important; }
+      .border-amber-500 { border-color: rgb(var(--gold-500)) !important; }
+      .border-amber-200 { border-color: rgb(var(--gold-200)) !important; }
+      .border-amber-100 { border-color: rgb(var(--gold-100)) !important; }
+
+      .shadow-amber-200 {
+        --tw-shadow-color: rgba(212, 175, 55, 0.35) !important;
+        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), 0 12px 30px -12px var(--tw-shadow-color) !important;
+      }
+
+      .focus\:ring-amber-500:focus { --tw-ring-color: rgb(var(--gold-500)) !important; }
+      .focus\:border-amber-500:focus { border-color: rgb(var(--gold-500)) !important; }      
     </style>
   <script type="importmap">
 {

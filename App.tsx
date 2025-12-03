@@ -230,7 +230,7 @@ const App: React.FC = () => {
   // --------------------------------------------------------------------------
 
   if (isLoading && !partners.length && isAuthenticated) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div></div>;
   }
 
   if (!isAuthenticated) {
@@ -347,7 +347,7 @@ const App: React.FC = () => {
         return (
           <div className="p-6 pb-24">
              <div className="text-center mb-6">
-                <div className="w-24 h-24 bg-emerald-100 rounded-full mx-auto mb-4 flex items-center justify-center text-emerald-600 border-4 border-white shadow-lg overflow-hidden">
+                <div className="w-24 h-24 bg-amber-100 rounded-full mx-auto mb-4 flex items-center justify-center text-amber-600 border-4 border-white shadow-lg overflow-hidden">
                     <img src={currentUser?.avatar} alt="Me" className="w-full h-full object-cover" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">{currentUser?.name}</h2>
@@ -362,33 +362,33 @@ const App: React.FC = () => {
                      
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <div className="flex items-center gap-3">
-                             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><Icons.Phone /></div>
+                             <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Icons.Phone /></div>
                              <span className="text-gray-700 font-medium text-sm">Показывать телефон</span>
                          </div>
-                         <button onClick={() => togglePrivacy('showPhone')} className="text-2xl text-emerald-600 focus:outline-none">
+                         <button onClick={() => togglePrivacy('showPhone')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.privacySettings.showPhone ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
 
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <div className="flex items-center gap-3">
-                             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><Icons.Mail /></div>
+                             <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Icons.Mail /></div>
                              <span className="text-gray-700 font-medium text-sm">Показывать Email</span>
                          </div>
-                         <button onClick={() => togglePrivacy('showEmail')} className="text-2xl text-emerald-600 focus:outline-none">
+                         <button onClick={() => togglePrivacy('showEmail')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.privacySettings.showEmail ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
 
                      <div className="flex items-center justify-between py-2 pt-3">
                          <div className="flex items-center gap-3">
-                             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><Icons.Message /></div>
+                             <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Icons.Message /></div>
                              <div className="flex flex-col">
                                  <span className="text-gray-700 font-medium text-sm">Сообщения от всех</span>
                                  <span className="text-[10px] text-gray-400">Разрешить писать "не партнерам"</span>
                              </div>
                          </div>
-                         <button onClick={() => togglePrivacy('allowCrossLineMessages')} className="text-2xl text-emerald-600 focus:outline-none">
+                         <button onClick={() => togglePrivacy('allowCrossLineMessages')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.privacySettings.allowCrossLineMessages ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
@@ -432,8 +432,8 @@ const App: React.FC = () => {
       {/* Header */}
       <header className="bg-white px-4 py-3 shadow-sm flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">F</div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">FOHOW <span className="text-emerald-600">Connect</span></h1>
+            <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">F</div>
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">FOHOW <span className="text-amber-600">Connect</span></h1>
         </div>
         <div className="flex items-center gap-3">
              <button onClick={() => setShowNotifications(true)} className="p-2 relative text-gray-600">
@@ -466,7 +466,7 @@ const App: React.FC = () => {
 };
 
 const NavBtn = ({ icon, label, active, onClick }: any) => (
-    <button onClick={onClick} className={`flex flex-col items-center gap-1 p-2 w-16 transition-colors ${active ? 'text-emerald-600' : 'text-gray-400'}`}>
+    <button onClick={onClick} className={`flex flex-col items-center gap-1 p-2 w-16 transition-colors ${active ? 'text-amber-600' : 'text-gray-400'}`}>
         {icon}
         <span className="text-[9px] font-medium">{label}</span>
     </button>

@@ -107,11 +107,11 @@ const PartnerList: React.FC<PartnerListProps> = ({
          Моя структура
        </button>
        <button 
-         onClick={() => { setTeamSubTab('ranks'); setSelectedRank(Rank.EMERALD); }}
-         className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'ranks' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
-       >
-         По рангам
-       </button>
+       onClick={() => { setTeamSubTab('ranks'); setSelectedRank(Rank.EMERALD); }}
+        className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'ranks' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
+      >
+        По статусу
+      </button>
     </div>
   );
 

@@ -13,7 +13,7 @@ export const MOCK_PARTNERS: Partner[] = [
     city: 'Тюмень',
     phone: '+7 900 123 45 67',
     email: 'irina.fohow@example.com',
-    avatar: 'https://ui-avatars.com/api/?name=Admin&background=0D9488&color=fff',
+    avatar: 'https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=fff',
     bio: 'В бизнесе более 10 лет.',
     whatsapp: '79001234567',
     role: 'partner',

@@ -31,7 +31,7 @@ export const api = {
             city: 'Тюмень',
             country: 'Россия',
             phone: '+7 999 000 00 00',
-            avatar: 'https://ui-avatars.com/api/?name=Admin&background=0D9488&color=fff',
+            avatar: 'https://ui-avatars.com/api/?name=Admin&background=D4AF37&color=fff',
             bio: 'Моя цель - Сапфир до конца года!',
             token: 'mock-jwt-token-partner',
             isPublic: true,

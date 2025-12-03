@@ -5,7 +5,7 @@
 - `/api` — Backend API (Node.js + Fastify, порт 4001)
 - `/frontend` — Фронтенд (Next.js) — *в разработке*
 
-## Установка и запуск Backend
+## Установка и запуск Backend 
 
 ```bash
 cd api

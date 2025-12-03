@@ -45,7 +45,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
   return (
     <div className="min-h-screen bg-white z-50 animate-fade-in pb-20">
       {/* Header Image Area */}
-      <div className={`relative h-60 ${hasAccess ? 'bg-emerald-800' : 'bg-gray-700'}`}>
+      <div className={`relative h-60 ${hasAccess ? 'bg-amber-800' : 'bg-gray-700'}`}>
         <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <button 
           onClick={onBack}
@@ -92,7 +92,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
                     <>
                         <button 
                             onClick={() => onSendRequest('mentor')}
-                            className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-emerald-100"
+                            className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-amber-100"
                         >
                             + В Наставники
                         </button>
@@ -112,7 +112,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
              <div className="flex gap-2 justify-center mb-6">
                  <button 
                     onClick={onStartChat}
-                    className="bg-emerald-600 text-white px-8 py-3 rounded-full text-sm font-bold shadow-lg shadow-emerald-200 active:scale-95 transition-transform flex items-center gap-2"
+                    className="bg-amber-600 text-white px-8 py-3 rounded-full text-sm font-bold shadow-lg shadow-amber-200 active:scale-95 transition-transform flex items-center gap-2"
                  >
                     <Icons.Message /> Написать сообщение
                  </button>
@@ -123,7 +123,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
         {hasAccess ? (
           <div className="flex justify-center gap-6 pb-6 border-b border-gray-100">
             {isPhoneVisible ? (
-                <a href={`tel:${partner.phone}`} className="flex flex-col items-center gap-1 group text-gray-500 hover:text-emerald-600">
+                <a href={`tel:${partner.phone}`} className="flex flex-col items-center gap-1 group text-gray-500 hover:text-amber-600">
                   <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-200">
                     <Icons.Phone />
                   </div>

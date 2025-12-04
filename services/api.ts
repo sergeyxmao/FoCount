@@ -48,13 +48,34 @@ export const api = {
           ? `https://interactive.marketingfohow.ru${data.user.avatar_url}`
           : `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.full_name || 'User')}&background=D4AF37&color=fff`,
         bio: '',
+
+        // Social contacts
+        office: data.user.office || '',
+        telegram_user: data.user.telegram_user || '',
+        telegram_channel: data.user.telegram_channel || '',
+        vk_profile: data.user.vk_profile || '',
+        ok_profile: data.user.ok_profile || '',
+        instagram_profile: data.user.instagram_profile || '',
+        whatsapp_contact: data.user.whatsapp_contact || '',
+
         token: data.token,
         isPublic: true,
         isOffice: data.user.office ? true : false,
-        privacySettings: {
+        visibilitySettings: data.user.visibility_settings || {
           showPhone: true,
           showEmail: true,
+          showTelegram: true,
+          showVK: true,
+          showInstagram: true,
+          showWhatsApp: true,
           allowCrossLineMessages: true
+        },
+        searchSettings: data.user.search_settings || {
+          searchByName: true,
+          searchByCity: true,
+          searchByCountry: true,
+          searchByPersonalId: true,
+          searchByOffice: true
         },
         blockedUserIds: data.user.blocked_users || []
       };
@@ -148,13 +169,28 @@ if (!Array.isArray(partnersData)) {
         city: p.city || '',
         phone: p.phone || '',
         email: p.email,
-        avatar: p.avatar_url 
-          ? `https://interactive.marketingfohow.ru${p.avatar_url}` 
+        avatar: p.avatar_url
+          ? `https://interactive.marketingfohow.ru${p.avatar_url}`
           : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'User')}&background=D4AF37&color=fff`,
+        bio: p.bio || '',
+
+        // Social contacts
+        office: p.office || '',
+        telegram_user: p.telegram_user || '',
+        telegram_channel: p.telegram_channel || '',
+        vk_profile: p.vk_profile || '',
+        ok_profile: p.ok_profile || '',
+        instagram_profile: p.instagram_profile || '',
+        whatsapp_contact: p.whatsapp_contact || '',
+
         role: p.fohow_role || 'client',
         isVerified: p.is_verified || false,
         isPublic: true,
         isOffice: p.office ? true : false,
+
+        visibilitySettings: p.visibility_settings,
+        searchSettings: p.search_settings,
+        blockedUserIds: p.blocked_users || []
       }));
 
     } catch (error: any) {

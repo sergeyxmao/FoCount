@@ -369,13 +369,13 @@ if (!Array.isArray(partnersData)) {
    */
   updateVisibilitySettings: async (settings: any) => {
     const token = localStorage.getItem('fohow_token');
-    const response = await fetch(`${API_BASE_URL}/users/visibility`, {
+    const response = await fetch(`${API_BASE_URL}/users/me/settings`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify(settings),
+      body: JSON.stringify({ visibility_settings: settings }),
     });
 
     if (!response.ok) throw new Error('Не удалось обновить настройки видимости');
@@ -387,13 +387,13 @@ if (!Array.isArray(partnersData)) {
    */
   updateSearchSettings: async (settings: any) => {
     const token = localStorage.getItem('fohow_token');
-    const response = await fetch(`${API_BASE_URL}/users/search`, {
+    const response = await fetch(`${API_BASE_URL}/users/me/settings`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify(settings),
+      body: JSON.stringify({ search_settings: settings }),
     });
 
     if (!response.ok) throw new Error('Не удалось обновить настройки поиска');

@@ -14,7 +14,7 @@ export const api = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: loginId,  // API принимает поле "email" (но туда можно отправить и personal_id)
+          email: loginId,
           password: password
         }),
       });
@@ -30,7 +30,6 @@ export const api = {
         throw new Error('Неверный ответ сервера');
       }
 
-      // Маппинг данных с API на локальную структуру User
       const user: User = {
         id: data.user.id.toString(),
         fohowId: data.user.personal_id || data.user.email,
@@ -69,65 +68,206 @@ export const api = {
   /**
    * Получение списка партнеров
    */
-getPartners: async (filters?: {
-  country?: string;
-  city?: string;
-  rank?: Rank;
-  search?: string;
-}): Promise<Partner[]> => {
-  try {
-    const token = localStorage.getItem('fohow_token');
-    if (!token) {
-      throw new Error('Требуется авторизация');
+  getPartners: async (filters?: {
+    country?: string;
+    city?: string;
+    rank?: Rank;
+    search?: string;
+  }): Promise<Partner[]> => {
+    try {
+      const token = localStorage.getItem('fohow_token');
+      if (!token) {
+        throw new Error('Требуется авторизация');
+      }
+
+      const params = new URLSearchParams();
+      if (filters?.country) params.append('country', filters.country);
+      if (filters?.city) params.append('city', filters.city);
+      if (filters?.rank) params.append('rank', filters.rank);
+      if (filters?.search) params.append('search', filters.search);
+
+      const response = await fetch(`${API_BASE_URL}/partners?${params}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (!Array.isArray(data.partners)) {
+        console.error('API вернул не массив:', data);
+        return [];
+      }
+
+      return data.partners.map((p: any) => ({
+        id: p.id.toString(),
+        fohowId: p.personal_id || p.email,
+        name: p.full_name || p.username,
+        rank: p.rank || Rank.NOVICE,
+        country: p.country || '',
+        city: p.city || '',
+        phone: p.phone || '',
+        email: p.email,
+        avatar: p.avatar_url 
+          ? `https://interactive.marketingfohow.ru${p.avatar_url}` 
+          : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'User')}&background=D4AF37&color=fff`,
+        role: p.fohow_role || 'client',
+        isVerified: p.is_verified || false,
+        isPublic: true,
+        isOffice: p.office ? true : false,
+      }));
+
+    } catch (error: any) {
+      console.error('API Error:', error);
+      throw new Error(error.message || 'Не удалось загрузить список');
     }
+  },
 
-    const params = new URLSearchParams();
-    if (filters?.country) params.append('country', filters.country);
-    if (filters?.city) params.append('city', filters.city);
-    if (filters?.rank) params.append('rank', filters.rank);
-    if (filters?.search) params.append('search', filters.search);
+  /**
+   * Получение профиля партнера по ID
+   */
+  getPartnerById: async (id: string): Promise<Partner> => {
+    if (USE_MOCK_API) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const partner = MOCK_PARTNERS.find(p => p.id === id);
+          if (partner) {
+            resolve(partner);
+          } else {
+            reject(new Error('Партнер не найден'));
+          }
+        }, 500);
+      });
+    }
+    
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/partners/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) throw new Error('Не удалось загрузить профиль');
+    const data = await response.json();
+    return data.partner;
+  },
 
-    const response = await fetch(`${API_BASE_URL}/partners?${params}`, {
-      method: 'GET',
+  /**
+   * Поиск партнеров
+   */
+  searchPartners: async (query: string): Promise<Partner[]> => {
+    if (USE_MOCK_API) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const results = MOCK_PARTNERS.filter(p =>
+            p.name.toLowerCase().includes(query.toLowerCase()) ||
+            p.fohowId.toLowerCase().includes(query.toLowerCase())
+          );
+          resolve(results);
+        }, 300);
+      });
+    }
+    
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/partners/search?q=${encodeURIComponent(query)}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) throw new Error('Ошибка поиска');
+    const data = await response.json();
+    return data.partners;
+  },
+
+  /**
+   * Создание запроса на связь
+   */
+  createRelationship: async (targetId: string, type: 'mentor' | 'downline') => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/relationships`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
+      body: JSON.stringify({ targetId, type }),
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const data = await response.json();
     
-    // Проверяем что API вернул массив
-    if (!Array.isArray(data.partners)) {
-      console.error('API вернул не массив:', data);
-      return [];
-    }
+    if (!response.ok) throw new Error('Не удалось создать запрос');
+    return response.json();
+  },
 
-    // Маппинг данных с API на локальную структуру Partner
-    return data.partners.map((p: any) => ({
-      id: p.id.toString(),
-      fohowId: p.personal_id || p.email,
-      name: p.full_name || p.username,
-      rank: p.rank || Rank.NOVICE,
-      country: p.country || '',
-      city: p.city || '',
-      phone: p.phone || '',
-      email: p.email,
-      avatar: p.avatar_url 
-        ? `https://interactive.marketingfohow.ru${p.avatar_url}` 
-        : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'User')}&background=D4AF37&color=fff`,
-      role: p.fohow_role || 'client',
-      isVerified: p.is_verified || false,
-      isPublic: true,
-      isOffice: p.office ? true : false,
-    }));
+  /**
+   * Ответ на запрос связи
+   */
+  respondToRelationship: async (relationshipId: string, status: 'confirmed' | 'rejected') => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/relationships/${relationshipId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status }),
+    });
+    
+    if (!response.ok) throw new Error('Не удалось обновить статус');
+    return response.json();
+  },
 
-  } catch (error: any) {
-    console.error('API Error:', error);
-    throw new Error(error.message || 'Не удалось загрузить список');
-  }
-},
+  /**
+   * Получение моих связей
+   */
+  getMyRelationships: async () => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/relationships/my`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) throw new Error('Не удалось загрузить связи');
+    return response.json();
+  },
+
+  /**
+   * Блокировка пользователя
+   */
+  blockUser: async (userId: string) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/users/block`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userId }),
+    });
+    
+    if (!response.ok) throw new Error('Не удалось заблокировать');
+    return response.json();
+  },
+
+  /**
+   * Разблокировка пользователя
+   */
+  unblockUser: async (userId: string) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/users/block/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) throw new Error('Не удалось разблокировать');
+    return response.json();
+  },
+};

@@ -69,38 +69,65 @@ export const api = {
   /**
    * Получение списка партнеров
    */
-  getPartners: async (): Promise<Partner[]> => {
-    if (USE_MOCK_API) {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      return MOCK_PARTNERS;
+getPartners: async (filters?: {
+  country?: string;
+  city?: string;
+  rank?: Rank;
+  search?: string;
+}): Promise<Partner[]> => {
+  try {
+    const token = localStorage.getItem('fohow_token');
+    if (!token) {
+      throw new Error('Требуется авторизация');
     }
 
-    try {
-      const token = localStorage.getItem('fohow_token');
-      const response = await fetch(`${API_BASE_URL}/partners`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+    const params = new URLSearchParams();
+    if (filters?.country) params.append('country', filters.country);
+    if (filters?.city) params.append('city', filters.city);
+    if (filters?.rank) params.append('rank', filters.rank);
+    if (filters?.search) params.append('search', filters.search);
 
-      if (!response.ok) throw new Error('Не удалось загрузить список');
-      return await response.json();
-    } catch (error) {
-      console.error('API Error:', error);
+    const response = await fetch(`${API_BASE_URL}/partners?${params}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Проверяем что API вернул массив
+    if (!Array.isArray(data.partners)) {
+      console.error('API вернул не массив:', data);
       return [];
     }
-  },
 
-  logout: () => {
-    localStorage.removeItem('fohow_token');
-    localStorage.removeItem('fohow_user');
-  },
+    // Маппинг данных с API на локальную структуру Partner
+    return data.partners.map((p: any) => ({
+      id: p.id.toString(),
+      fohowId: p.personal_id || p.email,
+      name: p.full_name || p.username,
+      rank: p.rank || Rank.NOVICE,
+      country: p.country || '',
+      city: p.city || '',
+      phone: p.phone || '',
+      email: p.email,
+      avatar: p.avatar_url 
+        ? `https://interactive.marketingfohow.ru${p.avatar_url}` 
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'User')}&background=D4AF37&color=fff`,
+      role: p.fohow_role || 'client',
+      isVerified: p.is_verified || false,
+      isPublic: true,
+      isOffice: p.office ? true : false,
+    }));
 
-  getCurrentUser: (): User | null => {
-    const userStr = localStorage.getItem('fohow_user');
-    if (userStr) {
-      return JSON.parse(userStr);
-    }
-    return null;
+  } catch (error: any) {
+    console.error('API Error:', error);
+    throw new Error(error.message || 'Не удалось загрузить список');
   }
-};
+},

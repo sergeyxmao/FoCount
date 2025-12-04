@@ -12,9 +12,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  // Simple validation to show user hint
-  const isFohowLike = /^[A-Za-z]{3}\d+/.test(loginId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,13 +39,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             <span className="text-4xl font-bold">F</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">FOHOW Connect</h1>
-          <p className="text-gray-500 text-sm mt-1">Единая система входа</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 ml-1">
-              Компьютерный номер / Email
+              Email
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -60,15 +56,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 value={loginId}
                 onChange={(e) => setLoginId(e.target.value)}
                 className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all font-medium"
-                placeholder="Напр. RUY68241101111"
+                placeholder="example@mail.com"
               />
             </div>
-            {isFohowLike && (
-               <div className="mt-1 ml-1 text-xs text-amber-600 flex items-center gap-1">
-                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                 Формат ID распознан
-               </div>
-            )}
           </div>
           
           <div>
@@ -106,16 +96,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         </form>
 
         <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-          <p className="text-xs text-gray-400 mb-2">
-            Нет номера FOHOW?
-          </p>
-          <button 
-            type="button"
+          <a
+            href="https://interactive.marketingfohow.ru"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-amber-600 text-sm font-semibold hover:underline"
-            onClick={() => alert("Переход на страницу регистрации в Интерактивной Доске")}
           >
-            Зарегистрироваться как Клиент
-          </button>
+            Интерактивная доска
+          </a>
         </div>
       </div>
       

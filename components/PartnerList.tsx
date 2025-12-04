@@ -26,6 +26,8 @@ const PartnerList: React.FC<PartnerListProps> = ({
 
   // FILTER LOGIC
   const filteredList = useMemo(() => {
+  const filteredList = useMemo(() => {
+  console.log('🔍 PartnerList:', { activeTab, partnersCount: partners.length, currentUserId: currentUser?.id });  
     if (!currentUser) return [];
 
     let list = partners.filter(p => p.id !== currentUser.id); // Exclude self

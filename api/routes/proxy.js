@@ -136,4 +136,40 @@ export function registerProxyRoutes(app, authenticateToken) {
       return reply.code(err.response?.status || 500).send(err.response?.data || { error: 'Proxy error' });
     }
   });
+
+  // Прокси PUT /api/users/visibility (обновление настроек видимости)
+  app.put('/api/users/visibility', {
+    preHandler: [authenticateToken]
+  }, async (req, reply) => {
+    try {
+      const response = await axios.put(`${MAIN_API_URL}/api/users/visibility`, req.body, {
+        headers: {
+          'Authorization': req.headers.authorization,
+          'Content-Type': 'application/json'
+        }
+      });
+      return reply.send(response.data);
+    } catch (err) {
+      console.error('[PROXY] PUT /api/users/visibility error:', err.message);
+      return reply.code(err.response?.status || 500).send(err.response?.data || { error: 'Proxy error' });
+    }
+  });
+
+  // Прокси PUT /api/users/search (обновление настроек поиска)
+  app.put('/api/users/search', {
+    preHandler: [authenticateToken]
+  }, async (req, reply) => {
+    try {
+      const response = await axios.put(`${MAIN_API_URL}/api/users/search`, req.body, {
+        headers: {
+          'Authorization': req.headers.authorization,
+          'Content-Type': 'application/json'
+        }
+      });
+      return reply.send(response.data);
+    } catch (err) {
+      console.error('[PROXY] PUT /api/users/search error:', err.message);
+      return reply.code(err.response?.status || 500).send(err.response?.data || { error: 'Proxy error' });
+    }
+  });
 }

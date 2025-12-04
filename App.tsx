@@ -528,7 +528,7 @@ const App: React.FC = () => {
                  </div>
              )}
 
-             <button onClick={() => { setIsAuthenticated(false); setCurrentUser(null); }} className="block w-full text-red-500 font-bold bg-white py-3 rounded-xl border border-gray-200">
+             <button onClick={() => { api.logout(); setIsAuthenticated(false); setCurrentUser(null); }} className="block w-full text-red-500 font-bold bg-white py-3 rounded-xl border border-gray-200">
                 Выйти
              </button>
           </div>

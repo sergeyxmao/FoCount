@@ -8,13 +8,16 @@ export const api = {
   /**
    * Авторизация пользователя
    */
-  login: async (loginId: string, password: string): Promise<User> => {
+ login: async (loginId: string, password: string): Promise<User> => {
     try {
+      // Определяем тип входа: email или personal_id
+      const isEmail = loginId.includes('@');
+      
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: loginId,
+          ...(isEmail ? { email: loginId } : { personal_id: loginId }),
           password: password
         }),
       });
@@ -64,7 +67,6 @@ export const api = {
       throw new Error(error.message || 'Произошла ошибка входа');
     }
   },
-
   /**
    * Получение текущего пользователя из localStorage
    */

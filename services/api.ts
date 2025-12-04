@@ -66,6 +66,34 @@ export const api = {
   },
 
   /**
+   * Получение текущего пользователя из localStorage
+   */
+  getCurrentUser: (): User | null => {
+    try {
+      const userJson = localStorage.getItem('fohow_user');
+      if (!userJson) return null;
+      
+      const user = JSON.parse(userJson);
+      const token = localStorage.getItem('fohow_token');
+      
+      if (!token) return null;
+      
+      return { ...user, token };
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Выход из системы
+   */
+  logout: (): void => {
+    localStorage.removeItem('fohow_token');
+    localStorage.removeItem('fohow_user');
+  },
+  
+  /**
    * Получение списка партнеров
    */
   getPartners: async (filters?: {
@@ -128,6 +156,8 @@ export const api = {
       throw new Error(error.message || 'Не удалось загрузить список');
     }
   },
+
+  
 
   /**
    * Получение профиля партнера по ID

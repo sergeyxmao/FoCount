@@ -43,7 +43,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
   const hasAccess = isConnected || partner.isPublic || partner.isOffice;
 
   return (
-    <div className="min-h-screen bg-white z-50 animate-fade-in pb-20">
+    <div className="h-screen bg-white z-50 animate-fade-in overflow-y-auto fixed inset-0 flex flex-col">
       {/* Header Image Area */}
       <div className={`relative h-60 ${hasAccess ? 'bg-amber-800' : 'bg-gray-700'}`}>
         <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>

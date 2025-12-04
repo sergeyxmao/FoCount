@@ -345,7 +345,7 @@ const App: React.FC = () => {
          );
       case 'profile':
         return (
-          <div className="p-6 pb-24">
+          <div className="p-6">
              <div className="text-center mb-6">
                 <div className="w-24 h-24 bg-amber-100 rounded-full mx-auto mb-4 flex items-center justify-center text-amber-600 border-4 border-white shadow-lg overflow-hidden">
                     <img src={currentUser?.avatar} alt="Me" className="w-full h-full object-cover" />
@@ -427,10 +427,10 @@ const App: React.FC = () => {
   const isClient = currentUser?.role === 'client';
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-gray-50 relative shadow-2xl overflow-hidden md:border-x md:border-gray-200">
-      
-      {/* Header */}
-      <header className="bg-white px-4 py-3 shadow-sm flex items-center justify-between sticky top-0 z-20">
+    <div className="max-w-md mx-auto h-screen flex flex-col bg-gray-50 shadow-2xl overflow-hidden md:border-x md:border-gray-200">
+
+      {/* Header - Fixed */}
+      <header className="bg-white px-4 py-3 shadow-sm flex items-center justify-between flex-shrink-0 z-20">
         <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">F</div>
             <h1 className="text-xl font-bold text-gray-900 tracking-tight">FOHOW <span className="text-amber-600">Connect</span></h1>
@@ -442,13 +442,13 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="min-h-screen pb-20">
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 overflow-y-auto">
         {renderContent()}
       </main>
 
-      {/* Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 pb-5 z-30 md:absolute md:w-full md:bottom-0">
+      {/* Navigation - Fixed */}
+      <nav className="bg-white border-t border-gray-200 px-2 py-2 pb-safe flex-shrink-0 z-30">
         <div className="flex justify-around items-center max-w-md mx-auto">
           {!isClient && (
             <NavBtn icon={<Icons.Users />} label="Команда" active={activeTab === 'team'} onClick={() => setActiveTab('team')} />

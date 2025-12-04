@@ -12,7 +12,7 @@ interface NotificationsProps {
 
 const Notifications: React.FC<NotificationsProps> = ({ notifications, partners, onAccept, onReject, onClose }) => {
   return (
-    <div className="fixed inset-0 z-50 bg-gray-50 flex flex-col animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-gray-50 flex flex-col animate-fade-in h-screen">
       <div className="bg-white px-4 py-3 shadow-sm flex items-center gap-3 border-b border-gray-200">
         <button onClick={onClose} className="p-2 -ml-2">
           <Icons.ChevronLeft />
@@ -20,7 +20,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, partners, 
         <h2 className="text-xl font-bold">Уведомления</h2>
       </div>
 
-      <div className="p-4 space-y-3 overflow-y-auto">
+      <div className="p-4 space-y-3 overflow-y-auto flex-1">
         {notifications.length === 0 ? (
           <div className="text-center text-gray-500 mt-10">
             Нет новых уведомлений

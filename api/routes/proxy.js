@@ -118,4 +118,22 @@ export function registerProxyRoutes(app, authenticateToken) {
       return reply.code(err.response?.status || 500).send(err.response?.data || { error: 'Proxy error' });
     }
   });
+
+  // Прокси PUT /api/users/me/settings (обновление настроек видимости и поиска)
+  app.put('/api/users/me/settings', {
+    preHandler: [authenticateToken]
+  }, async (req, reply) => {
+    try {
+      const response = await axios.put(`${MAIN_API_URL}/api/users/me/settings`, req.body, {
+        headers: {
+          'Authorization': req.headers.authorization,
+          'Content-Type': 'application/json'
+        }
+      });
+      return reply.send(response.data);
+    } catch (err) {
+      console.error('[PROXY] PUT /api/users/me/settings error:', err.message);
+      return reply.code(err.response?.status || 500).send(err.response?.data || { error: 'Proxy error' });
+    }
+  });
 }

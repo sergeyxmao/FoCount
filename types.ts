@@ -11,10 +11,22 @@ export enum Rank {
 
 export type UserRole = 'partner' | 'client';
 
-export interface PrivacySettings {
+export interface VisibilitySettings {
   showPhone: boolean;
   showEmail: boolean;
+  showTelegram: boolean;
+  showVK: boolean;
+  showInstagram: boolean;
+  showWhatsApp: boolean;
   allowCrossLineMessages: boolean; // Разрешить писать не из структуры
+}
+
+export interface SearchSettings {
+  searchByName: boolean;
+  searchByCity: boolean;
+  searchByCountry: boolean;
+  searchByPersonalId: boolean;
+  searchByOffice: boolean;
 }
 
 export interface Partner {
@@ -29,17 +41,27 @@ export interface Partner {
   email: string;
   avatar: string;
   bio: string;
+
+  // Social contacts
+  office?: string;
   telegram?: string;
+  telegram_user?: string;
+  telegram_channel?: string;
   whatsapp?: string;
-  
+  whatsapp_contact?: string;
+  vk_profile?: string;
+  ok_profile?: string;
+  instagram_profile?: string;
+
   role: UserRole;
   isVerified: boolean;
   isPublic: boolean; // Master switch: appear in global search
   isOffice: boolean;
-  
-  privacySettings?: PrivacySettings;
+
+  visibilitySettings?: VisibilitySettings;
+  searchSettings?: SearchSettings;
   blockedUserIds?: string[]; // IDs of users blocked by this partner
-  
+
   teamIds?: string[];
 }
 

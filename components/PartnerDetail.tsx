@@ -27,17 +27,29 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
   
   // LOGIC: Visibility based on Relations & Privacy Settings
   const isConnected = relationshipStatus === 'confirmed';
-  
+
   // 1. Phone Visibility
-  // Visible if: Connected OR (Public AND privacy.showPhone is true)
-  const isPhoneVisible = isConnected || partner.isOffice || (partner.isPublic && partner.privacySettings?.showPhone);
-  
+  // Visible if: Connected OR (Public AND visibility.showPhone is true)
+  const isPhoneVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showPhone);
+
   // 2. Email Visibility
-  const isEmailVisible = isConnected || partner.isOffice || (partner.isPublic && partner.privacySettings?.showEmail);
-  
-  // 3. Chat Permission
-  // Allowed if: Connected OR (Public AND privacy.allowCrossLineMessages is true)
-  const canChat = isConnected || (partner.isPublic && partner.privacySettings?.allowCrossLineMessages);
+  const isEmailVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showEmail);
+
+  // 3. Telegram Visibility
+  const isTelegramVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showTelegram);
+
+  // 4. VK Visibility
+  const isVKVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showVK);
+
+  // 5. Instagram Visibility
+  const isInstagramVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showInstagram);
+
+  // 6. WhatsApp Visibility
+  const isWhatsAppVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showWhatsApp);
+
+  // 7. Chat Permission
+  // Allowed if: Connected OR (Public AND visibility.allowCrossLineMessages is true)
+  const canChat = isConnected || (partner.isPublic && partner.visibilitySettings?.allowCrossLineMessages);
 
   // General Access (at least something is visible)
   const hasAccess = isConnected || partner.isPublic || partner.isOffice;
@@ -167,24 +179,88 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
           {hasAccess && (
             <div className="pt-2">
                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Контакты</h3>
-               
-               <div className="flex items-center justify-between py-1">
+
+               <div className="flex items-center justify-between py-1 border-b border-gray-50">
                    <span className="text-gray-500 text-sm">Телефон</span>
-                   {isPhoneVisible ? (
-                       <span className="text-gray-900 font-medium">{partner.phone}</span>
+                   {isPhoneVisible && partner.phone ? (
+                       <a href={`tel:${partner.phone}`} className="text-gray-900 font-medium hover:text-amber-600">{partner.phone}</a>
                    ) : (
-                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыт владельцем</span>
+                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
                    )}
                </div>
 
-               <div className="flex items-center justify-between py-1">
+               <div className="flex items-center justify-between py-1 border-b border-gray-50">
                    <span className="text-gray-500 text-sm">Email</span>
-                   {isEmailVisible ? (
-                       <span className="text-gray-900 font-medium">{partner.email}</span>
+                   {isEmailVisible && partner.email ? (
+                       <a href={`mailto:${partner.email}`} className="text-gray-900 font-medium hover:text-amber-600">{partner.email}</a>
                    ) : (
-                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыт владельцем</span>
+                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
                    )}
                </div>
+
+               <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                   <span className="text-gray-500 text-sm">Telegram</span>
+                   {isTelegramVisible && partner.telegram_user ? (
+                       <a href={`https://t.me/${partner.telegram_user.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                         @{partner.telegram_user.replace('@', '')}
+                       </a>
+                   ) : (
+                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                   )}
+               </div>
+
+               <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                   <span className="text-gray-500 text-sm">WhatsApp</span>
+                   {isWhatsAppVisible && partner.whatsapp_contact ? (
+                       <a href={`https://wa.me/${partner.whatsapp_contact.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                         {partner.whatsapp_contact}
+                       </a>
+                   ) : (
+                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                   )}
+               </div>
+
+               <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                   <span className="text-gray-500 text-sm">VK</span>
+                   {isVKVisible && partner.vk_profile ? (
+                       <a href={partner.vk_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                         Профиль
+                       </a>
+                   ) : (
+                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                   )}
+               </div>
+
+               <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                   <span className="text-gray-500 text-sm">Instagram</span>
+                   {isInstagramVisible && partner.instagram_profile ? (
+                       <a href={partner.instagram_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                         Профиль
+                       </a>
+                   ) : (
+                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                   )}
+               </div>
+
+               <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                   <span className="text-gray-500 text-sm">Одноклассники</span>
+                   {isVKVisible && partner.ok_profile ? (
+                       <a href={partner.ok_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                         Профиль
+                       </a>
+                   ) : (
+                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                   )}
+               </div>
+
+               {partner.telegram_channel && (
+                 <div className="flex items-center justify-between py-1">
+                     <span className="text-gray-500 text-sm">Telegram Канал</span>
+                     <a href={partner.telegram_channel} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                       Открыть
+                     </a>
+                 </div>
+               )}
             </div>
           )}
         </div>

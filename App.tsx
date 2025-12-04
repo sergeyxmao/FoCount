@@ -144,13 +144,26 @@ const App: React.FC = () => {
       localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
   };
 
-  const togglePrivacy = (field: 'showPhone' | 'showEmail' | 'allowCrossLineMessages') => {
-      if (!currentUser || !currentUser.privacySettings) return;
+  const toggleVisibility = (field: 'showPhone' | 'showEmail' | 'showTelegram' | 'showVK' | 'showInstagram' | 'showWhatsApp' | 'allowCrossLineMessages') => {
+      if (!currentUser || !currentUser.visibilitySettings) return;
       const updatedUser = {
           ...currentUser,
-          privacySettings: {
-              ...currentUser.privacySettings,
-              [field]: !currentUser.privacySettings[field]
+          visibilitySettings: {
+              ...currentUser.visibilitySettings,
+              [field]: !currentUser.visibilitySettings[field]
+          }
+      };
+      setCurrentUser(updatedUser);
+      localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
+  };
+
+  const toggleSearchSetting = (field: 'searchByName' | 'searchByCity' | 'searchByCountry' | 'searchByPersonalId' | 'searchByOffice') => {
+      if (!currentUser || !currentUser.searchSettings) return;
+      const updatedUser = {
+          ...currentUser,
+          searchSettings: {
+              ...currentUser.searchSettings,
+              [field]: !currentUser.searchSettings[field]
           }
       };
       setCurrentUser(updatedUser);
@@ -357,17 +370,17 @@ const App: React.FC = () => {
                 </div>
              </div>
 
-             {currentUser?.privacySettings && (
+             {currentUser?.visibilitySettings && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Приватность</h3>
-                     
+
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <div className="flex items-center gap-3">
                              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Icons.Phone /></div>
                              <span className="text-gray-700 font-medium text-sm">Показывать телефон</span>
                          </div>
-                         <button onClick={() => togglePrivacy('showPhone')} className="text-2xl text-amber-600 focus:outline-none">
-                             {currentUser.privacySettings.showPhone ? <Icons.Eye /> : <Icons.EyeOff />}
+                         <button onClick={() => toggleVisibility('showPhone')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.visibilitySettings.showPhone ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
 
@@ -376,8 +389,8 @@ const App: React.FC = () => {
                              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Icons.Mail /></div>
                              <span className="text-gray-700 font-medium text-sm">Показывать Email</span>
                          </div>
-                         <button onClick={() => togglePrivacy('showEmail')} className="text-2xl text-amber-600 focus:outline-none">
-                             {currentUser.privacySettings.showEmail ? <Icons.Eye /> : <Icons.EyeOff />}
+                         <button onClick={() => toggleVisibility('showEmail')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.visibilitySettings.showEmail ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
 
@@ -389,8 +402,83 @@ const App: React.FC = () => {
                                  <span className="text-[10px] text-gray-400">Разрешить писать "не партнерам"</span>
                              </div>
                          </div>
-                         <button onClick={() => togglePrivacy('allowCrossLineMessages')} className="text-2xl text-amber-600 focus:outline-none">
-                             {currentUser.privacySettings.allowCrossLineMessages ? <Icons.Check /> : <Icons.X />}
+                         <button onClick={() => toggleVisibility('allowCrossLineMessages')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.visibilitySettings.allowCrossLineMessages ? <Icons.Check /> : <Icons.X />}
+                         </button>
+                     </div>
+                 </div>
+             )}
+
+             {currentUser?.visibilitySettings && (
+                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">👁️ Видимость контактов</h3>
+
+                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                         <span className="text-gray-700 text-sm">Показывать Telegram</span>
+                         <button onClick={() => toggleVisibility('showTelegram')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.visibilitySettings.showTelegram ? <Icons.Eye /> : <Icons.EyeOff />}
+                         </button>
+                     </div>
+
+                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                         <span className="text-gray-700 text-sm">Показывать VK</span>
+                         <button onClick={() => toggleVisibility('showVK')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.visibilitySettings.showVK ? <Icons.Eye /> : <Icons.EyeOff />}
+                         </button>
+                     </div>
+
+                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                         <span className="text-gray-700 text-sm">Показывать Instagram</span>
+                         <button onClick={() => toggleVisibility('showInstagram')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.visibilitySettings.showInstagram ? <Icons.Eye /> : <Icons.EyeOff />}
+                         </button>
+                     </div>
+
+                     <div className="flex items-center justify-between py-2">
+                         <span className="text-gray-700 text-sm">Показывать WhatsApp</span>
+                         <button onClick={() => toggleVisibility('showWhatsApp')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.visibilitySettings.showWhatsApp ? <Icons.Eye /> : <Icons.EyeOff />}
+                         </button>
+                     </div>
+                 </div>
+             )}
+
+             {currentUser?.searchSettings && (
+                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">🔍 Разрешения на поиск</h3>
+
+                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                         <span className="text-gray-700 text-sm">Искать по имени</span>
+                         <button onClick={() => toggleSearchSetting('searchByName')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.searchSettings.searchByName ? <Icons.Check /> : <Icons.X />}
+                         </button>
+                     </div>
+
+                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                         <span className="text-gray-700 text-sm">Искать по городу</span>
+                         <button onClick={() => toggleSearchSetting('searchByCity')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.searchSettings.searchByCity ? <Icons.Check /> : <Icons.X />}
+                         </button>
+                     </div>
+
+                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                         <span className="text-gray-700 text-sm">Искать по стране</span>
+                         <button onClick={() => toggleSearchSetting('searchByCountry')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.searchSettings.searchByCountry ? <Icons.Check /> : <Icons.X />}
+                         </button>
+                     </div>
+
+                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                         <span className="text-gray-700 text-sm">Искать по номеру FOHOW</span>
+                         <button onClick={() => toggleSearchSetting('searchByPersonalId')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.searchSettings.searchByPersonalId ? <Icons.Check /> : <Icons.X />}
+                         </button>
+                     </div>
+
+                     <div className="flex items-center justify-between py-2">
+                         <span className="text-gray-700 text-sm">Искать по представительству</span>
+                         <button onClick={() => toggleSearchSetting('searchByOffice')} className="text-2xl text-amber-600 focus:outline-none">
+                             {currentUser.searchSettings.searchByOffice ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
                  </div>

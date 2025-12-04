@@ -30,6 +30,7 @@ function convertSearchSettingsToDb(settings: any) {
   if (!settings) {
     return {
       username: true,
+      full_name: true,
       city: true,
       country: true,
       personal_id: true,
@@ -39,6 +40,7 @@ function convertSearchSettingsToDb(settings: any) {
 
   return {
     username: settings.searchByName ?? true,
+    full_name: settings.searchByName ?? true,
     city: settings.searchByCity ?? true,
     country: settings.searchByCountry ?? true,
     personal_id: settings.searchByPersonalId ?? true,

@@ -140,7 +140,7 @@ const PartnerList: React.FC<PartnerListProps> = ({
   }
 
   return (
-    <div className="pb-20 pt-4 px-4">
+    <div className="pt-4 px-4 pb-4">
       
       {/* Search Bar */}
       <div className="relative mb-4">

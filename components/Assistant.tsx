@@ -55,7 +55,7 @@ const Assistant: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)]">
+    <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         {messages.map((msg) => (
           <div
@@ -85,7 +85,7 @@ const Assistant: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-white border-t border-gray-100 fixed bottom-[70px] left-0 right-0 md:static">
+      <div className="p-4 bg-white border-t border-gray-100">
         <div className="flex gap-2 items-end">
           <textarea
             value={input}

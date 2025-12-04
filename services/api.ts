@@ -338,8 +338,29 @@ if (!Array.isArray(partnersData)) {
         'Authorization': `Bearer ${token}`,
       },
     });
-    
+
     if (!response.ok) throw new Error('Не удалось разблокировать');
+    return response.json();
+  },
+
+  /**
+   * Обновление настроек видимости и поиска пользователя
+   */
+  updateUserSettings: async (settings: {
+    visibilitySettings?: any;
+    searchSettings?: any;
+  }) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/users/me/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(settings),
+    });
+
+    if (!response.ok) throw new Error('Не удалось обновить настройки');
     return response.json();
   },
 };

@@ -144,30 +144,50 @@ const App: React.FC = () => {
       localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
   };
 
-  const toggleVisibility = (field: 'showPhone' | 'showEmail' | 'showTelegram' | 'showVK' | 'showInstagram' | 'showWhatsApp' | 'allowCrossLineMessages') => {
+  const toggleVisibility = async (field: 'showPhone' | 'showEmail' | 'showTelegram' | 'showVK' | 'showInstagram' | 'showWhatsApp' | 'allowCrossLineMessages') => {
       if (!currentUser || !currentUser.visibilitySettings) return;
+      const updatedVisibilitySettings = {
+          ...currentUser.visibilitySettings,
+          [field]: !currentUser.visibilitySettings[field]
+      };
       const updatedUser = {
           ...currentUser,
-          visibilitySettings: {
-              ...currentUser.visibilitySettings,
-              [field]: !currentUser.visibilitySettings[field]
-          }
+          visibilitySettings: updatedVisibilitySettings
       };
       setCurrentUser(updatedUser);
       localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
+
+      // Отправляем настройки на сервер
+      try {
+        await api.updateUserSettings({
+          visibilitySettings: updatedVisibilitySettings
+        });
+      } catch (error) {
+        console.error('Ошибка при сохранении настроек видимости:', error);
+      }
   };
 
-  const toggleSearchSetting = (field: 'searchByName' | 'searchByCity' | 'searchByCountry' | 'searchByPersonalId' | 'searchByOffice') => {
+  const toggleSearchSetting = async (field: 'searchByName' | 'searchByCity' | 'searchByCountry' | 'searchByPersonalId' | 'searchByOffice') => {
       if (!currentUser || !currentUser.searchSettings) return;
+      const updatedSearchSettings = {
+          ...currentUser.searchSettings,
+          [field]: !currentUser.searchSettings[field]
+      };
       const updatedUser = {
           ...currentUser,
-          searchSettings: {
-              ...currentUser.searchSettings,
-              [field]: !currentUser.searchSettings[field]
-          }
+          searchSettings: updatedSearchSettings
       };
       setCurrentUser(updatedUser);
       localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
+
+      // Отправляем настройки на сервер
+      try {
+        await api.updateUserSettings({
+          searchSettings: updatedSearchSettings
+        });
+      } catch (error) {
+        console.error('Ошибка при сохранении настроек поиска:', error);
+      }
   };
 
   const handleBroadcastStart = (rank: Rank, targets: Partner[]) => {

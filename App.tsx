@@ -39,7 +39,7 @@ const App: React.FC = () => {
       setCurrentUser(user);
       setIsAuthenticated(true);
       loadPartners();
-      setActiveTab(user.role === 'client' ? 'global' : 'team');
+      setActiveTab('global'); // Всегда показываем "Весь мир" после входа
     } else {
       setIsLoading(false);
     }

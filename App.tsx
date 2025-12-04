@@ -49,6 +49,7 @@ const App: React.FC = () => {
     try {
       setIsLoading(true);
       const data = await api.getPartners();
+      console.log('✅ loadPartners получил:', data.length, 'партнёров', data);
       setPartners(data);
     } catch (e) {
       console.error("Failed to load partners", e);

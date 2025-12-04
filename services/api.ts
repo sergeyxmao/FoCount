@@ -139,7 +139,7 @@ if (!Array.isArray(partnersData)) {
   return [];
 }
 
-      return data.partners.map((p: any) => ({
+      return partnersData.map((p: any) => ({
         id: p.id.toString(),
         fohowId: p.personal_id || p.email,
         name: p.full_name || p.username,

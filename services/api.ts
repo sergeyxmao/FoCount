@@ -4,6 +4,48 @@ import { MOCK_PARTNERS } from '../constants';
 const API_BASE_URL = 'https://interactive.marketingfohow.ru/api';
 const USE_MOCK_API = false;
 
+// Конвертер формата search_settings из БД в формат фронтенда
+function convertSearchSettings(dbSettings: any) {
+  if (!dbSettings) {
+    return {
+      searchByName: true,
+      searchByCity: true,
+      searchByCountry: true,
+      searchByPersonalId: true,
+      searchByOffice: true
+    };
+  }
+
+  return {
+    searchByName: dbSettings.username ?? dbSettings.full_name ?? true,
+    searchByCity: dbSettings.city ?? true,
+    searchByCountry: dbSettings.country ?? true,
+    searchByPersonalId: dbSettings.personal_id ?? true,
+    searchByOffice: dbSettings.office ?? true
+  };
+}
+
+// Конвертер формата search_settings из фронтенда в формат БД
+function convertSearchSettingsToDb(settings: any) {
+  if (!settings) {
+    return {
+      username: true,
+      city: true,
+      country: true,
+      personal_id: true,
+      office: true
+    };
+  }
+
+  return {
+    username: settings.searchByName ?? true,
+    city: settings.searchByCity ?? true,
+    country: settings.searchByCountry ?? true,
+    personal_id: settings.searchByPersonalId ?? true,
+    office: settings.searchByOffice ?? true
+  };
+}
+
 export const api = {
   /**
    * Авторизация пользователя
@@ -70,13 +112,7 @@ export const api = {
           showWhatsApp: true,
           allowCrossLineMessages: true
         },
-        searchSettings: data.user.search_settings || {
-          searchByName: true,
-          searchByCity: true,
-          searchByCountry: true,
-          searchByPersonalId: true,
-          searchByOffice: true
-        },
+        searchSettings: convertSearchSettings(data.user.search_settings),
         blockedUserIds: data.user.blocked_users || []
       };
 
@@ -189,7 +225,7 @@ if (!Array.isArray(partnersData)) {
         isOffice: p.office ? true : false,
 
         visibilitySettings: p.visibility_settings,
-        searchSettings: p.search_settings,
+        searchSettings: convertSearchSettings(p.search_settings),
         blockedUserIds: p.blocked_users || []
       }));
 
@@ -387,13 +423,15 @@ if (!Array.isArray(partnersData)) {
    */
   updateSearchSettings: async (settings: any) => {
     const token = localStorage.getItem('fohow_token');
+    // Преобразуем формат фронтенда в формат БД
+    const dbFormat = convertSearchSettingsToDb(settings);
     const response = await fetch(`${API_BASE_URL}/users/me/settings`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ search_settings: settings }),
+      body: JSON.stringify({ search_settings: dbFormat }),
     });
 
     if (!response.ok) throw new Error('Не удалось обновить настройки поиска');

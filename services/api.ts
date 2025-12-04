@@ -128,12 +128,16 @@ export const api = {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      
-      if (!Array.isArray(data.partners)) {
-        console.error('API вернул не массив:', data);
-        return [];
-      }
+const result = await response.json();
+
+// Обрабатываем структуру ответа API
+const partnersData = result.success ? result.data : (result.partners || []);
+
+// Проверяем что есть массив
+if (!Array.isArray(partnersData)) {
+  console.error('API вернул не массив:', result);
+  return [];
+}
 
       return data.partners.map((p: any) => ({
         id: p.id.toString(),

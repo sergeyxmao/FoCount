@@ -146,6 +146,8 @@ const App: React.FC = () => {
 
   const toggleVisibility = async (field: 'showPhone' | 'showEmail' | 'showTelegram' | 'showVK' | 'showInstagram' | 'showWhatsApp' | 'allowCrossLineMessages') => {
       if (!currentUser || !currentUser.visibilitySettings) return;
+
+      // 1. Обновить состояние локально
       const updatedVisibilitySettings = {
           ...currentUser.visibilitySettings,
           [field]: !currentUser.visibilitySettings[field]
@@ -155,20 +157,22 @@ const App: React.FC = () => {
           visibilitySettings: updatedVisibilitySettings
       };
       setCurrentUser(updatedUser);
-      localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
 
-      // Отправляем настройки на сервер
+      // 2. Вызвать API для сохранения в БД
       try {
-        await api.updateUserSettings({
-          visibilitySettings: updatedVisibilitySettings
-        });
+        await api.updateVisibilitySettings(updatedVisibilitySettings);
       } catch (error) {
         console.error('Ошибка при сохранении настроек видимости:', error);
       }
+
+      // 3. Обновить localStorage
+      localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
   };
 
   const toggleSearchSetting = async (field: 'searchByName' | 'searchByCity' | 'searchByCountry' | 'searchByPersonalId' | 'searchByOffice') => {
       if (!currentUser || !currentUser.searchSettings) return;
+
+      // 1. Обновить состояние локально
       const updatedSearchSettings = {
           ...currentUser.searchSettings,
           [field]: !currentUser.searchSettings[field]
@@ -178,16 +182,16 @@ const App: React.FC = () => {
           searchSettings: updatedSearchSettings
       };
       setCurrentUser(updatedUser);
-      localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
 
-      // Отправляем настройки на сервер
+      // 2. Вызвать API для сохранения в БД
       try {
-        await api.updateUserSettings({
-          searchSettings: updatedSearchSettings
-        });
+        await api.updateSearchSettings(updatedSearchSettings);
       } catch (error) {
         console.error('Ошибка при сохранении настроек поиска:', error);
       }
+
+      // 3. Обновить localStorage
+      localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
   };
 
   const handleBroadcastStart = (rank: Rank, targets: Partner[]) => {

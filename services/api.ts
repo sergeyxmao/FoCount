@@ -363,4 +363,40 @@ if (!Array.isArray(partnersData)) {
     if (!response.ok) throw new Error('Не удалось обновить настройки');
     return response.json();
   },
+
+  /**
+   * Обновление настроек видимости
+   */
+  updateVisibilitySettings: async (settings: any) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/users/visibility`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(settings),
+    });
+
+    if (!response.ok) throw new Error('Не удалось обновить настройки видимости');
+    return response.json();
+  },
+
+  /**
+   * Обновление настроек поиска
+   */
+  updateSearchSettings: async (settings: any) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/users/search`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(settings),
+    });
+
+    if (!response.ok) throw new Error('Не удалось обновить настройки поиска');
+    return response.json();
+  },
 };

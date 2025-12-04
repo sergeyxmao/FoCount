@@ -1,7 +1,7 @@
 import { Partner, User, AuthResponse, Rank } from '../types';
 import { MOCK_PARTNERS } from '../constants';
 
-const API_BASE_URL = 'https://interactive.marketingfohow.ru/fogrup-api';
+const API_BASE_URL = 'https://interactive.marketingfohow.ru/api';
 const USE_MOCK_API = false;
 
 export const api = {

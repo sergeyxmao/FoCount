@@ -11,6 +11,7 @@ interface PartnerDetailProps {
   relationshipStatus: 'none' | 'pending' | 'confirmed' | 'rejected';
   onSendRequest: (type: 'mentor' | 'downline') => void;
   onStartChat: () => void;
+  onDeleteRelationship: (id: string) => void; // <--- ДОБАВИТЬ
 }
 
 const PartnerDetail: React.FC<PartnerDetailProps> = ({ 
@@ -21,7 +22,8 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
   onToggleFavorite, 
   relationshipStatus,
   onSendRequest,
-  onStartChat
+  onStartChat,
+  onDeleteRelationship, 
 }) => {
   const isClient = currentUserRole === 'client';
   
@@ -93,31 +95,43 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
           )}
         </div>
 
-        {/* CONNECTION REQUEST BUTTONS (Only if not connected) */}
-        {!isClient && !isConnected && (
-            <div className="flex gap-2 justify-center mb-6">
-                {relationshipStatus === 'pending' ? (
-                    <button disabled className="bg-gray-100 text-gray-500 px-6 py-2 rounded-full text-sm font-medium">
-                        Запрос отправлен...
-                    </button>
-                ) : (
-                    <>
-                        <button 
-                            onClick={() => onSendRequest('mentor')}
-                            className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-amber-100"
-                        >
-                            + В Наставники
-                        </button>
-                        <button 
-                            onClick={() => onSendRequest('downline')}
-                            className="bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-gray-100"
-                        >
-                            + В Партнеры
-                        </button>
-                    </>
-                )}
-            </div>
+       {/* CONNECTION REQUEST BUTTONS (Only if not connected) */}
+{!isClient && !isConnected && (
+    <div className="flex gap-2 justify-center mb-6">
+        {relationshipStatus === 'pending' ? (
+            <button disabled className="bg-gray-100 text-gray-500 px-6 py-2 rounded-full text-sm font-medium">
+                Запрос отправлен...
+            </button>
+        ) : (
+            <>
+                <button 
+                    onClick={() => onSendRequest('mentor')}
+                    className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-amber-100"
+                >
+                    + В Наставники
+                </button>
+                <button 
+                    onClick={() => onSendRequest('downline')}
+                    className="bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-gray-100"
+                >
+                    + В Партнеры
+                </button>
+            </>
         )}
+    </div>
+)}
+
+{/* КНОПКА УДАЛЕНИЯ (Если связь подтверждена) */}
+{!isClient && isConnected && (
+    <div className="flex gap-2 justify-center mb-6">
+        <button 
+            onClick={() => onDeleteRelationship(partner.id)}
+            className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-red-100 flex items-center gap-2"
+        >
+            <Icons.X /> Удалить из команды
+        </button>
+    </div>
+)}
 
         {/* CHAT BUTTON (If permission allows) */}
         {canChat && !isClient && (

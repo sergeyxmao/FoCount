@@ -5,7 +5,7 @@ const API_BASE_URL = 'https://interactive.marketingfohow.ru/api';
 const USE_MOCK_API = false;
 
 // Конвертер формата search_settings из БД в формат фронтенда
-function convertSearchSettings(dbSettings: any) {
+/** function convertSearchSettings(dbSettings: any) {
   if (!dbSettings) {
     return {
       searchByName: true,
@@ -23,7 +23,7 @@ function convertSearchSettings(dbSettings: any) {
     searchByPersonalId: dbSettings.personal_id ?? true,
     searchByOffice: dbSettings.office ?? true
   };
-}
+} */
 
 // Конвертер формата search_settings из фронтенда в формат БД
 function convertSearchSettingsToDb(settings: any) {

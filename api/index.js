@@ -45,7 +45,7 @@ async function authenticateToken(req, reply) {
 }
 
 // Регистрация маршрутов
-registerProxyRoutes(app, authenticateToken);
+registerProxyRoutes(app, pool, authenticateToken);
 registerChatRoutes(app, pool, authenticateToken);
 registerNotificationRoutes(app, pool, authenticateToken);
 

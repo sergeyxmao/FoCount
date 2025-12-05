@@ -526,19 +526,20 @@ if (!Array.isArray(partnersData)) {
    */
   fetchUserProfile: async (): Promise<User> => {
     const token = localStorage.getItem('fohow_token');
-    const response = await fetch(`${API_BASE_URL}/profile`, { // Эндпоинт есть в server.js
+    // Исправлено: теперь обращаемся к /users/me, который мы добавили на сервер
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
-    
+
     if (!response.ok) throw new Error('Failed to fetch profile');
     const data = await response.json();
-    
-    // Маппим данные с сервера в формат фронтенда (User)
     const u = data.user;
+
+    // Маппинг данных
     return {
         id: u.id.toString(),
         fohowId: u.personal_id || u.email,
-        role: 'partner', // или логика определения
+        role: u.fohow_role || 'client',
         isVerified: u.is_verified,
         name: u.full_name || u.username,
         email: u.email,
@@ -546,19 +547,33 @@ if (!Array.isArray(partnersData)) {
         city: u.city || '',
         country: u.country || '',
         phone: u.phone || '',
-        avatar: u.avatar_url 
-            ? `https://interactive.marketingfohow.ru${u.avatar_url}` 
+        avatar: u.avatar_url
+            ? `https://interactive.marketingfohow.ru${u.avatar_url}`
             : `https://ui-avatars.com/api/?name=${u.full_name}&background=D4AF37&color=fff`,
         bio: u.bio || '',
         office: u.office || '',
         telegram_user: u.telegram_user,
+        telegram_channel: u.telegram_channel,
         vk_profile: u.vk_profile,
         instagram_profile: u.instagram_profile,
         whatsapp_contact: u.whatsapp_contact,
+        ok_profile: u.ok_profile,
+
+        isPublic: true,
+        isOffice: u.office ? true : false,
+
+        // Важно: передаем настройки
         visibilitySettings: u.visibility_settings || {},
-        searchSettings: convertSearchSettings(u.search_settings),
+        // Конвертируем настройки поиска если они в старом формате, или берем как есть
+        searchSettings: {
+            searchByName: u.search_settings?.searchByName ?? true,
+            searchByCity: u.search_settings?.searchByCity ?? true,
+            searchByCountry: u.search_settings?.searchByCountry ?? true,
+            searchByPersonalId: u.search_settings?.searchByPersonalId ?? true,
+            searchByOffice: u.search_settings?.searchByOffice ?? true
+        },
         blockedUserIds: u.blocked_users || [],
-        token: token! 
+        token: token!
     };
   },
 };

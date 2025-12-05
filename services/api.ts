@@ -444,4 +444,46 @@ if (!Array.isArray(partnersData)) {
     if (!response.ok) throw new Error('Не удалось обновить настройки поиска');
     return response.json();
   },
+  
+  /**
+   * Обновление данных профиля (Имя, Город, Био и т.д.)
+   */
+  updateProfile: async (data: Partial<User>) => {
+    const token = localStorage.getItem('fohow_token');
+    
+    // Маппинг полей фронтенда на поля бэкенда (если они отличаются)
+    // В User у нас camelCase, а бэкенд ждет snake_case для некоторых полей
+    const payload = {
+      full_name: data.name,
+      city: data.city,
+      country: data.country,
+      phone: data.phone,
+      office: data.office,
+      bio: data.bio,
+      telegram_user: data.telegram_user,
+      telegram_channel: data.telegram_channel,
+      whatsapp_contact: data.whatsapp_contact,
+      vk_profile: data.vk_profile,
+      instagram_profile: data.instagram_profile,
+      ok_profile: data.ok_profile
+    };
+
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+       const err = await response.json();
+       throw new Error(err.error || 'Не удалось обновить профиль');
+    }
+    
+    return response.json();
+  },
 };
+
+

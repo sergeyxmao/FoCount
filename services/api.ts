@@ -525,20 +525,19 @@ if (!Array.isArray(partnersData)) {
     return response.json();
   },
 
-  /**
+/**
    * Получение свежего профиля (для синхронизации)
    */
   fetchUserProfile: async (): Promise<User> => {
     const token = localStorage.getItem('fohow_token');
-    // Исправлено: теперь обращаемся к /users/me, который мы добавили на сервер
     const response = await fetch(`${API_BASE_URL}/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
-
+    
     if (!response.ok) throw new Error('Failed to fetch profile');
     const data = await response.json();
     const u = data.user;
-
+    
     // Маппинг данных
     return {
         id: u.id.toString(),
@@ -551,8 +550,8 @@ if (!Array.isArray(partnersData)) {
         city: u.city || '',
         country: u.country || '',
         phone: u.phone || '',
-        avatar: u.avatar_url
-            ? `https://interactive.marketingfohow.ru${u.avatar_url}`
+        avatar: u.avatar_url 
+            ? `https://interactive.marketingfohow.ru${u.avatar_url}` 
             : `https://ui-avatars.com/api/?name=${u.full_name}&background=D4AF37&color=fff`,
         bio: u.bio || '',
         office: u.office || '',
@@ -562,22 +561,16 @@ if (!Array.isArray(partnersData)) {
         instagram_profile: u.instagram_profile,
         whatsapp_contact: u.whatsapp_contact,
         ok_profile: u.ok_profile,
-
+        
         isPublic: true,
         isOffice: u.office ? true : false,
-
-        // Важно: передаем настройки
+        
+        // Передаем настройки напрямую
         visibilitySettings: u.visibility_settings || {},
-        // Конвертируем настройки поиска если они в старом формате, или берем как есть
-        searchSettings: {
-            searchByName: u.search_settings?.searchByName ?? true,
-            searchByCity: u.search_settings?.searchByCity ?? true,
-            searchByCountry: u.search_settings?.searchByCountry ?? true,
-            searchByPersonalId: u.search_settings?.searchByPersonalId ?? true,
-            searchByOffice: u.search_settings?.searchByOffice ?? true
-        },
+        // Используем конвертер для правильного маппинга настроек поиска
+        searchSettings: convertSearchSettings(u.search_settings),
         blockedUserIds: u.blocked_users || [],
-        token: token!
+        token: token! 
     };
   },
 };

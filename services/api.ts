@@ -403,45 +403,44 @@ if (!Array.isArray(partnersData)) {
   },
 
 /**
-   * Обновление настроек видимости
-   */
-  updateVisibilitySettings: async (settings: any) => {
-    const token = localStorage.getItem('fohow_token');
-    // Исправлен URL на /users/visibility
-    // Убрана обертка { visibility_settings: ... }, отправляем сразу settings
-    const response = await fetch(`${API_BASE_URL}/users/visibility`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(settings),
-    });
+ * Обновление настроек видимости
+ */
+updateVisibilitySettings: async (settings: any) => {
+  const token = localStorage.getItem('fohow_token');
+  // ОТПРАВЛЯЕМ НА /users/visibility И БЕЗ ОБЕРТКИ
+  const response = await fetch(`${API_BASE_URL}/users/visibility`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(settings), // Шлем чистый объект { showPhone: true }
+  });
 
-    if (!response.ok) {
-       const err = await response.json();
-       throw new Error(err.error || 'Не удалось обновить настройки видимости');
-    }
-    return response.json();
-  },
+  if (!response.ok) {
+     const err = await response.json();
+     throw new Error(err.error || 'Не удалось обновить настройки видимости');
+  }
+  return response.json();
+},
 
-  /**
-   * Обновление настроек поиска
-   */
-  updateSearchSettings: async (settings: any) => {
-    const token = localStorage.getItem('fohow_token');
-    // Преобразуем формат фронтенда в формат БД
-    const dbFormat = convertSearchSettingsToDb(settings);
-    const response = await fetch(`${API_BASE_URL}/users/me/settings`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ search_settings: dbFormat }),
-    });
+/**
+ * Обновление настроек поиска
+ */
+updateSearchSettings: async (settings: any) => {
+  const token = localStorage.getItem('fohow_token');
+  // УДАЛЯЕМ convertSearchSettingsToDb - отправляем как есть, бэкенд теперь это понимает
+  // ИСПРАВЛЯЕМ URL на /users/search
+  const response = await fetch(`${API_BASE_URL}/users/search`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(settings),
+  });
 
-    if (!response.ok) throw new Error('Не удалось обновить настройки поиска');
-    return response.json();
-  },
+  if (!response.ok) throw new Error('Не удалось обновить настройки поиска');
+  return response.json();
+},
 };

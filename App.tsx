@@ -53,22 +53,21 @@ const loadPartners = async () => {
   try {
     setIsLoading(true);
     
-    // Загружаем партнеров и связи параллельно
-    const [partnersData, relData] = await Promise.all([
+    const [partnersData, relData, notifData] = await Promise.all([
         api.getPartners(),
-        api.getMyRelationships()
+        api.getMyRelationships(),
+        api.getNotifications() // <--- ДОБАВЛЕНО
     ]);
-    
-    console.log('✅ Партнёры:', partnersData.length);
     
     setPartners(partnersData);
     
-    // relData может прийти в формате { success: true, relationships: [...] } или просто массив (зависит от api.ts)
-    // В api.ts сейчас return response.json(), а бэкенд шлет { success: true, relationships }
-    // Поэтому берем relData.relationships
     if (relData && relData.relationships) {
          setRelationships(relData.relationships);
-         console.log('✅ Связи загружены:', relData.relationships);
+    }
+
+    // <--- ДОБАВЛЕНО
+    if (notifData && notifData.notifications) {
+        setNotifications(notifData.notifications);
     }
 
   } catch (e) {
@@ -97,29 +96,52 @@ const handleSendRequest = async (type: RelationshipType) => {
   try {
     const response = await api.createRelationship(selectedPartner.id, type);
     if (response.success && response.relationship) {
-         // Добавляем новую связь в стейт
-         setRelationships(prev => [...prev, response.relationship]);
-         alert(`Запрос отправлен пользователю ${selectedPartner.name}`);
+         // ВАЖНО: Приводим ID к строкам, чтобы React увидел изменения
+         const newRel = {
+             ...response.relationship,
+             id: String(response.relationship.id),
+             initiatorId: String(response.relationship.initiatorId),
+             targetId: String(response.relationship.targetId)
+         };
+         
+         setRelationships(prev => [...prev, newRel]);
+         // alert можно убрать для плавности, кнопка сама изменится
     }
   } catch (e) {
     console.error(e);
-    alert('Не удалось отправить запрос. Возможно, связь уже существует.');
+    alert('Ошибка при отправке запроса.');
   }
 };
 
-  const handleAcceptNotification = (notif: Notification) => {
-    if (notif.fromUserId && currentUser) {
-       const newRel: Relationship = {
-           id: Date.now().toString(),
-           initiatorId: notif.fromUserId,
-           targetId: currentUser.id,
-           type: 'downline',
-           status: 'confirmed'
-       };
-       setRelationships(prev => [...prev, newRel]);
-    }
-    setNotifications(prev => prev.filter(n => n.id !== notif.id));
-  };
+const handleAcceptNotification = async (notif: Notification) => {
+  // Если это запрос на связь
+  if (notif.type === 'relationship_request' && notif.relationshipId) {
+      try {
+          // 1. Отправляем подтверждение на сервер
+          await api.respondToRelationship(notif.relationshipId, 'confirmed');
+          
+          // 2. Обновляем локально список связей (чтобы сразу появился в Команде)
+          // Нам нужно знать ID инициатора. Он есть в notif.fromUserId
+          if (notif.fromUserId && currentUser) {
+               const newRel: Relationship = {
+                   id: notif.relationshipId, // ID из уведомления
+                   initiatorId: notif.fromUserId,
+                   targetId: currentUser.id,
+                   type: 'downline', // Тут упрощение, в идеале брать из ответа сервера
+                   status: 'confirmed'
+               };
+               setRelationships(prev => [...prev, newRel]);
+          }
+      } catch (e) {
+          console.error("Ошибка подтверждения", e);
+          return;
+      }
+  }
+  
+  // Убираем из списка и помечаем прочитанным
+  setNotifications(prev => prev.filter(n => n.id !== notif.id));
+  await api.markNotificationRead(notif.id);
+};
 
   const handleRejectNotification = (notif: Notification) => {
     setNotifications(prev => prev.filter(n => n.id !== notif.id));

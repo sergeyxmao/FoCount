@@ -498,15 +498,17 @@ const handleSaveProfile = async () => {
          );
       case 'profile':
         return (
-		<div className="flex justify-center mb-6">
-    <button 
-        onClick={handleStartEdit}
-        className="flex items-center gap-2 text-amber-600 border border-amber-600 px-4 py-2 rounded-full text-sm font-medium active:bg-amber-50"
-    >
-        <Icons.User /> Редактировать профиль
-    </button>
-</div>
           <div className="p-6">
+             {/* Кнопка редактирования внутри контейнера */}
+             <div className="flex justify-center mb-6">
+                <button 
+                    onClick={handleStartEdit}
+                    className="flex items-center gap-2 text-amber-600 border border-amber-600 px-4 py-2 rounded-full text-sm font-medium active:bg-amber-50"
+                >
+                    <Icons.User /> Редактировать профиль
+                </button>
+             </div>
+
              <div className="text-center mb-6">
                 <div className="w-24 h-24 bg-amber-100 rounded-full mx-auto mb-4 flex items-center justify-center text-amber-600 border-4 border-white shadow-lg overflow-hidden">
                     <img src={currentUser?.avatar} alt="Me" className="w-full h-full object-cover" />
@@ -517,10 +519,19 @@ const handleSaveProfile = async () => {
                 </div>
              </div>
 
+             {/* Блок О себе, если он заполнен */}
+             {currentUser?.bio && (
+                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">О себе</h3>
+                     <p className="text-sm text-gray-600">{currentUser.bio}</p>
+                 </div>
+             )}
+
+             {/* Далее идут настройки приватности... */}
              {currentUser?.visibilitySettings && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Приватность</h3>
-
+                     {/* ... код настроек ... */}
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <div className="flex items-center gap-3">
                              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Icons.Phone /></div>
@@ -559,28 +570,25 @@ const handleSaveProfile = async () => {
              {currentUser?.visibilitySettings && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">👁️ Видимость контактов</h3>
-
+                     {/* ... тут код для Telegram, VK и т.д., оставляем как было ... */}
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Показывать Telegram</span>
                          <button onClick={() => toggleVisibility('showTelegram')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.visibilitySettings.showTelegram ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
-
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Показывать VK</span>
                          <button onClick={() => toggleVisibility('showVK')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.visibilitySettings.showVK ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
-
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Показывать Instagram</span>
                          <button onClick={() => toggleVisibility('showInstagram')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.visibilitySettings.showInstagram ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
-
                      <div className="flex items-center justify-between py-2">
                          <span className="text-gray-700 text-sm">Показывать WhatsApp</span>
                          <button onClick={() => toggleVisibility('showWhatsApp')} className="text-2xl text-amber-600 focus:outline-none">
@@ -593,35 +601,32 @@ const handleSaveProfile = async () => {
              {currentUser?.searchSettings && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">🔍 Разрешения на поиск</h3>
-
-                     <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                     {/* ... тут код настроек поиска ... */}
+                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по имени</span>
                          <button onClick={() => toggleSearchSetting('searchByName')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByName ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
-
+                     {/* ... остальные поля поиска ... */}
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по городу</span>
                          <button onClick={() => toggleSearchSetting('searchByCity')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByCity ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
-
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по стране</span>
                          <button onClick={() => toggleSearchSetting('searchByCountry')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByCountry ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
-
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по номеру FOHOW</span>
                          <button onClick={() => toggleSearchSetting('searchByPersonalId')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByPersonalId ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
-
                      <div className="flex items-center justify-between py-2">
                          <span className="text-gray-700 text-sm">Искать по представительству</span>
                          <button onClick={() => toggleSearchSetting('searchByOffice')} className="text-2xl text-amber-600 focus:outline-none">
@@ -631,6 +636,7 @@ const handleSaveProfile = async () => {
                  </div>
              )}
 
+             {/* Блок блокировки (оставляем как есть) */}
              {currentUser?.blockedUserIds && currentUser.blockedUserIds.length > 0 && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Черный список</h3>
@@ -656,9 +662,6 @@ const handleSaveProfile = async () => {
              </button>
           </div>
         );
-      default: return null;
-    }
-  };
 
   const isClient = currentUser?.role === 'client';
 

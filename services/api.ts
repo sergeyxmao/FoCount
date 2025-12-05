@@ -5,7 +5,8 @@ const API_BASE_URL = 'https://interactive.marketingfohow.ru/api';
 const USE_MOCK_API = false;
 
 // Конвертер формата search_settings из БД в формат фронтенда
-/** function convertSearchSettings(dbSettings: any) {
+// Исправленная функция: если в БД уже лежат новые ключи, берем их.
+function convertSearchSettings(dbSettings: any) {
   if (!dbSettings) {
     return {
       searchByName: true,
@@ -16,14 +17,15 @@ const USE_MOCK_API = false;
     };
   }
 
+  // Приоритет: если есть searchByName, берем его. Если нет — пытаемся взять старое поле username.
   return {
-    searchByName: dbSettings.username ?? dbSettings.full_name ?? true,
-    searchByCity: dbSettings.city ?? true,
-    searchByCountry: dbSettings.country ?? true,
-    searchByPersonalId: dbSettings.personal_id ?? true,
-    searchByOffice: dbSettings.office ?? true
+    searchByName: dbSettings.searchByName ?? dbSettings.username ?? dbSettings.full_name ?? true,
+    searchByCity: dbSettings.searchByCity ?? dbSettings.city ?? true,
+    searchByCountry: dbSettings.searchByCountry ?? dbSettings.country ?? true,
+    searchByPersonalId: dbSettings.searchByPersonalId ?? dbSettings.personal_id ?? true,
+    searchByOffice: dbSettings.searchByOffice ?? dbSettings.office ?? true
   };
-} */
+}
 
 // Конвертер формата search_settings из фронтенда в формат БД
 function convertSearchSettingsToDb(settings: any) {
@@ -403,44 +405,43 @@ if (!Array.isArray(partnersData)) {
   },
 
 /**
- * Обновление настроек видимости
- */
-updateVisibilitySettings: async (settings: any) => {
-  const token = localStorage.getItem('fohow_token');
-  // ОТПРАВЛЯЕМ НА /users/visibility И БЕЗ ОБЕРТКИ
-  const response = await fetch(`${API_BASE_URL}/users/visibility`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(settings), // Шлем чистый объект { showPhone: true }
-  });
+   * Обновление настроек видимости
+   */
+  updateVisibilitySettings: async (settings: any) => {
+    const token = localStorage.getItem('fohow_token');
+    // Исправлено: отправляем на /users/visibility (без /me/settings)
+    const response = await fetch(`${API_BASE_URL}/users/visibility`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(settings), // Отправляем чистый объект { showPhone: true }
+    });
 
-  if (!response.ok) {
-     const err = await response.json();
-     throw new Error(err.error || 'Не удалось обновить настройки видимости');
-  }
-  return response.json();
-},
+    if (!response.ok) {
+       const err = await response.json();
+       throw new Error(err.error || 'Не удалось обновить настройки видимости');
+    }
+    return response.json();
+  },
 
-/**
- * Обновление настроек поиска
- */
-updateSearchSettings: async (settings: any) => {
-  const token = localStorage.getItem('fohow_token');
-  // УДАЛЯЕМ convertSearchSettingsToDb - отправляем как есть, бэкенд теперь это понимает
-  // ИСПРАВЛЯЕМ URL на /users/search
-  const response = await fetch(`${API_BASE_URL}/users/search`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(settings),
-  });
+  /**
+   * Обновление настроек поиска
+   */
+  updateSearchSettings: async (settings: any) => {
+    const token = localStorage.getItem('fohow_token');
+    // Исправлено: отправляем на /users/search и НЕ конвертируем ключи обратно в старые
+    const response = await fetch(`${API_BASE_URL}/users/search`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(settings),
+    });
 
-  if (!response.ok) throw new Error('Не удалось обновить настройки поиска');
-  return response.json();
-},
+    if (!response.ok) throw new Error('Не удалось обновить настройки поиска');
+    return response.json();
+  },
 };

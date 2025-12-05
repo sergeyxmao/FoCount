@@ -20,7 +20,7 @@ const App: React.FC = () => {
  
   // CORE DATA STATE
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [relationships, setRelationships] = useState<Relationship[]>(MOCK_RELATIONSHIPS);
+  const [relationships, setRelationships] = useState<Relationship[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
   const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
   
@@ -49,18 +49,34 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const loadPartners = async () => {
-    try {
-      setIsLoading(true);
-      const data = await api.getPartners();
-      console.log('✅ loadPartners получил:', data.length, 'партнёров', data);
-      setPartners(data);
-    } catch (e) {
-      console.error("Failed to load partners", e);
-    } finally {
-      setIsLoading(false);
+const loadPartners = async () => {
+  try {
+    setIsLoading(true);
+    
+    // Загружаем партнеров и связи параллельно
+    const [partnersData, relData] = await Promise.all([
+        api.getPartners(),
+        api.getMyRelationships()
+    ]);
+    
+    console.log('✅ Партнёры:', partnersData.length);
+    
+    setPartners(partnersData);
+    
+    // relData может прийти в формате { success: true, relationships: [...] } или просто массив (зависит от api.ts)
+    // В api.ts сейчас return response.json(), а бэкенд шлет { success: true, relationships }
+    // Поэтому берем relData.relationships
+    if (relData && relData.relationships) {
+         setRelationships(relData.relationships);
+         console.log('✅ Связи загружены:', relData.relationships);
     }
-  };
+
+  } catch (e) {
+    console.error("Failed to load data", e);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // --------------------------------------------------------------------------
   // LOGIC & ACTIONS
@@ -75,18 +91,21 @@ const App: React.FC = () => {
     return rel ? rel.status : 'none';
   };
 
-  const handleSendRequest = (type: RelationshipType) => {
-    if (!currentUser || !selectedPartner) return;
-    const newRel: Relationship = {
-      id: Date.now().toString(),
-      initiatorId: currentUser.id,
-      targetId: selectedPartner.id,
-      type: type,
-      status: 'pending'
-    };
-    setRelationships(prev => [...prev, newRel]);
-    alert(`Запрос отправлен пользователю ${selectedPartner.name}`);
-  };
+const handleSendRequest = async (type: RelationshipType) => {
+  if (!currentUser || !selectedPartner) return;
+  
+  try {
+    const response = await api.createRelationship(selectedPartner.id, type);
+    if (response.success && response.relationship) {
+         // Добавляем новую связь в стейт
+         setRelationships(prev => [...prev, response.relationship]);
+         alert(`Запрос отправлен пользователю ${selectedPartner.name}`);
+    }
+  } catch (e) {
+    console.error(e);
+    alert('Не удалось отправить запрос. Возможно, связь уже существует.');
+  }
+};
 
   const handleAcceptNotification = (notif: Notification) => {
     if (notif.fromUserId && currentUser) {

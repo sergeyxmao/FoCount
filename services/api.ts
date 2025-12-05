@@ -402,21 +402,26 @@ if (!Array.isArray(partnersData)) {
     return response.json();
   },
 
-  /**
+/**
    * Обновление настроек видимости
    */
   updateVisibilitySettings: async (settings: any) => {
     const token = localStorage.getItem('fohow_token');
-    const response = await fetch(`${API_BASE_URL}/users/me/settings`, {
+    // Исправлен URL на /users/visibility
+    // Убрана обертка { visibility_settings: ... }, отправляем сразу settings
+    const response = await fetch(`${API_BASE_URL}/users/visibility`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ visibility_settings: settings }),
+      body: JSON.stringify(settings),
     });
 
-    if (!response.ok) throw new Error('Не удалось обновить настройки видимости');
+    if (!response.ok) {
+       const err = await response.json();
+       throw new Error(err.error || 'Не удалось обновить настройки видимости');
+    }
     return response.json();
   },
 

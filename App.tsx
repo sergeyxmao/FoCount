@@ -52,15 +52,15 @@ const App: React.FC = () => {
 const loadPartners = async () => {
   try {
     setIsLoading(true);
-    
+
     const [partnersData, relData, notifData] = await Promise.all([
         api.getPartners(),
         api.getMyRelationships(),
         api.getNotifications() // <--- ДОБАВЛЕНО
     ]);
-    
+
     setPartners(partnersData);
-    
+
     if (relData && relData.relationships) {
          setRelationships(relData.relationships);
     }
@@ -76,6 +76,29 @@ const loadPartners = async () => {
     setIsLoading(false);
   }
 };
+
+// Синхронизация профиля пользователя каждые 5 секунд
+useEffect(() => {
+  if (!isAuthenticated) return;
+
+  const syncProfile = async () => {
+    try {
+      const freshUser = await api.fetchUserProfile();
+      // Обновляем только если пользователь не редактирует профиль
+      if (!isEditingProfile) {
+        setCurrentUser(freshUser);
+        localStorage.setItem('fohow_user', JSON.stringify(freshUser));
+      }
+    } catch (e) {
+      console.error("Sync error", e);
+    }
+  };
+
+  // Запускаем синхронизацию каждые 5 секунд
+  const intervalId = setInterval(syncProfile, 5000);
+
+  return () => clearInterval(intervalId);
+}, [isAuthenticated, isEditingProfile]);
 
   // --------------------------------------------------------------------------
   // LOGIC & ACTIONS

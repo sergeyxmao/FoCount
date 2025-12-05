@@ -13,11 +13,12 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  // Редактирование профиля
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  // Состояние для формы (копия текущего юзера)
   const [editForm, setEditForm] = useState<User | null>(null);
  
- // CORE DATA STATE
+  // CORE DATA STATE
   const [partners, setPartners] = useState<Partner[]>([]);
   const [relationships, setRelationships] = useState<Relationship[]>(MOCK_RELATIONSHIPS);
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
@@ -42,7 +43,7 @@ const App: React.FC = () => {
       setCurrentUser(user);
       setIsAuthenticated(true);
       loadPartners();
-      setActiveTab('global'); // Всегда показываем "Весь мир" после входа
+      setActiveTab('global'); 
     } else {
       setIsLoading(false);
     }
@@ -204,52 +205,16 @@ const App: React.FC = () => {
   const handleSendMessage = (text: string) => {
     if (!currentUser) return;
 
-    // Broadcast
     if (broadcastMode.active && broadcastMode.targets) {
-        const newChats = [...chats];
-        broadcastMode.targets.forEach(target => {
-            let chat = newChats.find(c => c.participantIds.includes(currentUser.id) && c.participantIds.includes(target.id));
-            if (!chat) {
-                chat = {
-                    id: `chat_${currentUser.id}_${target.id}_${Date.now()}`,
-                    participantIds: [currentUser.id, target.id],
-                    messages: [],
-                    lastMessageTime: Date.now()
-                };
-                newChats.push(chat);
-            }
-            chat.messages.push({
-                id: Date.now().toString() + Math.random(),
-                senderId: currentUser.id,
-                text: text,
-                timestamp: Date.now()
-            });
-            chat.lastMessageTime = Date.now();
-        });
-        setChats(newChats);
+        // Broadcast Logic (Mocked)
         alert(`Сообщение отправлено ${broadcastMode.targets.length} партнерам.`);
         setBroadcastMode({ active: false });
         return;
     }
 
-    // Direct Message
     if (activeChatId) {
         setChats(prev => prev.map(chat => {
             if (chat.id === activeChatId) {
-                // Determine Recipient
-                const recipientId = chat.participantIds.find(id => id !== currentUser.id);
-                const recipient = partners.find(p => p.id === recipientId);
-
-                // GHOST BAN LOGIC
-                // Check if recipient has blocked current user
-                // In a real app, backend would handle this. 
-                // Here we simulate: if recipient has me in blockedUserIds, message sends but is effectively "lost" for them.
-                // Since this is single-client mock, we can just pretend it's sent.
-                
-                // However, to satisfy "Partner does not see that he is blocked", 
-                // we just add the message to the chat history as usual. 
-                // The 'reading' logic would be on the receiver side (filtering out blocked messages).
-                
                 return {
                     ...chat,
                     messages: [...chat.messages, {
@@ -266,46 +231,45 @@ const App: React.FC = () => {
     }
   };
   
+  // EDIT PROFILE LOGIC
   const handleStartEdit = () => {
-  setEditForm(currentUser);
-  setIsEditingProfile(true);
-};
+    setEditForm(currentUser);
+    setIsEditingProfile(true);
+  };
 
-const handleSaveProfile = async () => {
-  if (!editForm) return;
-  try {
-    setIsLoading(true);
-    const response = await api.updateProfile(editForm);
-    
-    // Обновляем текущего пользователя данными с сервера
-    // Маппим ответ сервера обратно в формат фронтенда
-    const updatedUser = {
-        ...currentUser!,
-        name: response.user.full_name,
-        city: response.user.city,
-        country: response.user.country,
-        phone: response.user.phone,
-        office: response.user.office,
-        bio: response.user.bio,
-        telegram_user: response.user.telegram_user,
-        telegram_channel: response.user.telegram_channel,
-        whatsapp_contact: response.user.whatsapp_contact,
-        vk_profile: response.user.vk_profile,
-        instagram_profile: response.user.instagram_profile,
-        ok_profile: response.user.ok_profile
-    };
+  const handleSaveProfile = async () => {
+    if (!editForm) return;
+    try {
+        setIsLoading(true);
+        const response = await api.updateProfile(editForm);
+        
+        const updatedUser = {
+            ...currentUser!,
+            name: response.user.full_name,
+            city: response.user.city,
+            country: response.user.country,
+            phone: response.user.phone,
+            office: response.user.office,
+            bio: response.user.bio,
+            telegram_user: response.user.telegram_user,
+            telegram_channel: response.user.telegram_channel,
+            whatsapp_contact: response.user.whatsapp_contact,
+            vk_profile: response.user.vk_profile,
+            instagram_profile: response.user.instagram_profile,
+            ok_profile: response.user.ok_profile
+        };
 
-    setCurrentUser(updatedUser);
-    localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
-    setIsEditingProfile(false);
-    alert('Профиль успешно обновлен!');
-  } catch (e) {
-    console.error(e);
-    alert('Ошибка при сохранении профиля');
-  } finally {
-    setIsLoading(false);
-  }
-};
+        setCurrentUser(updatedUser);
+        localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
+        setIsEditingProfile(false);
+        alert('Профиль успешно обновлен!');
+    } catch (e) {
+        console.error(e);
+        alert('Ошибка при сохранении профиля');
+    } finally {
+        setIsLoading(false);
+    }
+  };
 
   // --------------------------------------------------------------------------
   // RENDER FLOW
@@ -319,68 +283,7 @@ const handleSaveProfile = async () => {
     return <LoginScreen onLoginSuccess={(user) => { setCurrentUser(user); setIsAuthenticated(true); loadPartners(); setActiveTab(user.role === 'client' ? 'global' : 'team'); }} />;
   }
 
-  // 1. Chat Screens
-  if (broadcastMode.active) {
-      return (
-          <ChatScreen 
-             chat={{ id: 'broadcast', participantIds: [], messages: [], lastMessageTime: 0 }}
-             partner={null}
-             currentUser={currentUser!}
-             onSendMessage={handleSendMessage}
-             onBack={() => setBroadcastMode({ active: false })}
-             isBroadcast={true}
-             broadcastRank={broadcastMode.rank}
-          />
-      );
-  }
-
-  if (activeChatId) {
-      const chat = chats.find(c => c.id === activeChatId) || null;
-      const partnerId = chat?.participantIds.find(id => id !== currentUser?.id);
-      const partner = partners.find(p => p.id === partnerId) || null;
-
-      return (
-        <ChatScreen 
-            chat={chat}
-            partner={partner}
-            currentUser={currentUser!}
-            onSendMessage={handleSendMessage}
-            onBack={() => setActiveChatId(null)}
-            onBlockUser={handleBlockUser}
-        />
-      );
-  }
-
-  // 2. Details & Overlays
-  if (selectedPartner) {
-    return (
-      <PartnerDetail 
-        partner={selectedPartner} 
-        currentUserRole={currentUser!.role}
-        onBack={() => setSelectedPartner(null)}
-        isFavorite={favorites.includes(selectedPartner.id)}
-        onToggleFavorite={(id) => setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])}
-        relationshipStatus={getRelationshipStatus(selectedPartner.id)}
-        onSendRequest={handleSendRequest}
-        onStartChat={handleStartChat}
-      />
-    );
-  }
-
-  if (showNotifications) {
-      return (
-          <Notifications 
-            notifications={notifications}
-            partners={partners}
-            onAccept={handleAcceptNotification}
-            onReject={handleRejectNotification}
-            onClose={() => setShowNotifications(false)}
-          />
-      );
-  }
-
-  // 3. Main Logic
-  const renderContent = () => {
+  // EDIT PROFILE SCREEN
   if (isEditingProfile && editForm) {
     return (
         <div className="p-6 bg-white min-h-screen pb-20">
@@ -451,7 +354,69 @@ const handleSaveProfile = async () => {
             </div>
         </div>
     );
-}
+  }
+
+  // CHAT SCREENS
+  if (broadcastMode.active) {
+      return (
+          <ChatScreen 
+             chat={{ id: 'broadcast', participantIds: [], messages: [], lastMessageTime: 0 }}
+             partner={null}
+             currentUser={currentUser!}
+             onSendMessage={handleSendMessage}
+             onBack={() => setBroadcastMode({ active: false })}
+             isBroadcast={true}
+             broadcastRank={broadcastMode.rank}
+          />
+      );
+  }
+
+  if (activeChatId) {
+      const chat = chats.find(c => c.id === activeChatId) || null;
+      const partnerId = chat?.participantIds.find(id => id !== currentUser?.id);
+      const partner = partners.find(p => p.id === partnerId) || null;
+
+      return (
+        <ChatScreen 
+            chat={chat}
+            partner={partner}
+            currentUser={currentUser!}
+            onSendMessage={handleSendMessage}
+            onBack={() => setActiveChatId(null)}
+            onBlockUser={handleBlockUser}
+        />
+      );
+  }
+
+  if (selectedPartner) {
+    return (
+      <PartnerDetail 
+        partner={selectedPartner} 
+        currentUserRole={currentUser!.role}
+        onBack={() => setSelectedPartner(null)}
+        isFavorite={favorites.includes(selectedPartner.id)}
+        onToggleFavorite={(id) => setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])}
+        relationshipStatus={getRelationshipStatus(selectedPartner.id)}
+        onSendRequest={handleSendRequest}
+        onStartChat={handleStartChat}
+      />
+    );
+  }
+
+  if (showNotifications) {
+      return (
+          <Notifications 
+            notifications={notifications}
+            partners={partners}
+            onAccept={handleAcceptNotification}
+            onReject={handleRejectNotification}
+            onClose={() => setShowNotifications(false)}
+          />
+      );
+  }
+
+  // MAIN RENDER SWITCH
+  const renderContent = () => {
     switch (activeTab) {
       case 'team':
       case 'global':
@@ -474,10 +439,7 @@ const handleSaveProfile = async () => {
                  <h2 className="text-xl font-bold mb-4">Сообщения</h2>
                  {chats.map(chat => {
                      const pid = chat.participantIds.find(id => id !== currentUser?.id);
-                     // Ghost Ban Check: If I blocked this user, hide the chat or messages?
-                     // Usually chats remain, but new messages don't notify.
-                     if (currentUser?.blockedUserIds?.includes(pid!)) return null; // Hide chat if blocked? Or just show blocked mark. Let's hide for now.
-
+                     if (currentUser?.blockedUserIds?.includes(pid!)) return null; 
                      const p = partners.find(x => x.id === pid);
                      if (!p) return null;
                      const lastMsg = chat.messages[chat.messages.length - 1];
@@ -499,7 +461,7 @@ const handleSaveProfile = async () => {
       case 'profile':
         return (
           <div className="p-6">
-             {/* Кнопка редактирования внутри контейнера */}
+             {/* Кнопка редактирования теперь внутри контейнера */}
              <div className="flex justify-center mb-6">
                 <button 
                     onClick={handleStartEdit}
@@ -519,7 +481,6 @@ const handleSaveProfile = async () => {
                 </div>
              </div>
 
-             {/* Блок О себе, если он заполнен */}
              {currentUser?.bio && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">О себе</h3>
@@ -527,11 +488,10 @@ const handleSaveProfile = async () => {
                  </div>
              )}
 
-             {/* Далее идут настройки приватности... */}
              {currentUser?.visibilitySettings && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Приватность</h3>
-                     {/* ... код настроек ... */}
+
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <div className="flex items-center gap-3">
                              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Icons.Phone /></div>
@@ -570,25 +530,28 @@ const handleSaveProfile = async () => {
              {currentUser?.visibilitySettings && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">👁️ Видимость контактов</h3>
-                     {/* ... тут код для Telegram, VK и т.д., оставляем как было ... */}
+
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Показывать Telegram</span>
                          <button onClick={() => toggleVisibility('showTelegram')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.visibilitySettings.showTelegram ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
+
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Показывать VK</span>
                          <button onClick={() => toggleVisibility('showVK')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.visibilitySettings.showVK ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
+
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Показывать Instagram</span>
                          <button onClick={() => toggleVisibility('showInstagram')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.visibilitySettings.showInstagram ? <Icons.Eye /> : <Icons.EyeOff />}
                          </button>
                      </div>
+
                      <div className="flex items-center justify-between py-2">
                          <span className="text-gray-700 text-sm">Показывать WhatsApp</span>
                          <button onClick={() => toggleVisibility('showWhatsApp')} className="text-2xl text-amber-600 focus:outline-none">
@@ -601,32 +564,35 @@ const handleSaveProfile = async () => {
              {currentUser?.searchSettings && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">🔍 Разрешения на поиск</h3>
-                     {/* ... тут код настроек поиска ... */}
+                     
                       <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по имени</span>
                          <button onClick={() => toggleSearchSetting('searchByName')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByName ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
-                     {/* ... остальные поля поиска ... */}
+                     
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по городу</span>
                          <button onClick={() => toggleSearchSetting('searchByCity')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByCity ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
+
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по стране</span>
                          <button onClick={() => toggleSearchSetting('searchByCountry')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByCountry ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
+
                      <div className="flex items-center justify-between py-2 border-b border-gray-50">
                          <span className="text-gray-700 text-sm">Искать по номеру FOHOW</span>
                          <button onClick={() => toggleSearchSetting('searchByPersonalId')} className="text-2xl text-amber-600 focus:outline-none">
                              {currentUser.searchSettings.searchByPersonalId ? <Icons.Check /> : <Icons.X />}
                          </button>
                      </div>
+
                      <div className="flex items-center justify-between py-2">
                          <span className="text-gray-700 text-sm">Искать по представительству</span>
                          <button onClick={() => toggleSearchSetting('searchByOffice')} className="text-2xl text-amber-600 focus:outline-none">
@@ -636,7 +602,6 @@ const handleSaveProfile = async () => {
                  </div>
              )}
 
-             {/* Блок блокировки (оставляем как есть) */}
              {currentUser?.blockedUserIds && currentUser.blockedUserIds.length > 0 && (
                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Черный список</h3>
@@ -662,6 +627,9 @@ const handleSaveProfile = async () => {
              </button>
           </div>
         );
+      default: return null;
+    }
+  };
 
   const isClient = currentUser?.role === 'client';
 

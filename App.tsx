@@ -100,6 +100,27 @@ useEffect(() => {
   return () => clearInterval(intervalId);
 }, [isAuthenticated, isEditingProfile]);
 
+// Синхронизация уведомлений каждые 10 секунд
+useEffect(() => {
+  if (!isAuthenticated) return;
+
+  const syncNotifications = async () => {
+    try {
+      const notifData = await api.getNotifications();
+      if (notifData && notifData.notifications) {
+        setNotifications(notifData.notifications);
+      }
+    } catch (e) {
+      console.error("Notification sync error", e);
+    }
+  };
+
+  // Запускаем синхронизацию каждые 10 секунд
+  const intervalId = setInterval(syncNotifications, 10000);
+
+  return () => clearInterval(intervalId);
+}, [isAuthenticated]);
+
   // --------------------------------------------------------------------------
   // LOGIC & ACTIONS
   // --------------------------------------------------------------------------
@@ -159,7 +180,7 @@ const handleAcceptNotification = async (notif: Notification) => {
       try {
           // 1. Отправляем подтверждение на сервер
           await api.respondToRelationship(notif.relationshipId, 'confirmed');
-          
+
           // 2. Обновляем локально список связей (чтобы сразу появился в Команде)
           // Нам нужно знать ID инициатора. Он есть в notif.fromUserId
           if (notif.fromUserId && currentUser) {
@@ -177,14 +198,24 @@ const handleAcceptNotification = async (notif: Notification) => {
           return;
       }
   }
-  
-  // Убираем из списка и помечаем прочитанным
-  setNotifications(prev => prev.filter(n => n.id !== notif.id));
-  await api.markNotificationRead(notif.id);
+
+  // Сначала помечаем прочитанным на сервере, потом убираем из UI
+  try {
+      await api.markNotificationRead(notif.id);
+      setNotifications(prev => prev.filter(n => n.id !== notif.id));
+  } catch (e) {
+      console.error("Ошибка отметки уведомления", e);
+  }
 };
 
-  const handleRejectNotification = (notif: Notification) => {
-    setNotifications(prev => prev.filter(n => n.id !== notif.id));
+  const handleRejectNotification = async (notif: Notification) => {
+    // Отмечаем уведомление как прочитанное перед удалением
+    try {
+      await api.markNotificationRead(notif.id);
+      setNotifications(prev => prev.filter(n => n.id !== notif.id));
+    } catch (e) {
+      console.error("Ошибка отметки уведомления", e);
+    }
   };
 
   const handleStartChat = () => {

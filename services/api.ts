@@ -490,7 +490,7 @@ if (!Array.isArray(partnersData)) {
    */
   getNotifications: async () => {
     const token = localStorage.getItem('fohow_token');
-    const response = await fetch(`${API_BASE_URL}/fogrup/notifications`, {
+    const response = await fetch(`${API_BASE_URL}/notifications`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
     if (!response.ok) return { notifications: [] };
@@ -502,10 +502,14 @@ if (!Array.isArray(partnersData)) {
    */
   markNotificationRead: async (id: string) => {
     const token = localStorage.getItem('fohow_token');
-    await fetch(`${API_BASE_URL}/fogrup/notifications/${id}/read`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token}` },
     });
+    if (!response.ok) {
+      throw new Error(`Failed to mark notification as read: ${response.status}`);
+    }
+    return response.json();
   },
 
   /**

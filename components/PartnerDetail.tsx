@@ -241,26 +241,6 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
                        <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
                    )}
                </div>
-
-               <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                   <span className="text-gray-500 text-sm">Одноклассники</span>
-                   {isVKVisible && partner.ok_profile ? (
-                       <a href={partner.ok_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
-                         Профиль
-                       </a>
-                   ) : (
-                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
-                   )}
-               </div>
-
-               {partner.telegram_channel && (
-                 <div className="flex items-center justify-between py-1">
-                     <span className="text-gray-500 text-sm">Telegram Канал</span>
-                     <a href={partner.telegram_channel} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
-                       Открыть
-                     </a>
-                 </div>
-               )}
             </div>
           )}
         </div>

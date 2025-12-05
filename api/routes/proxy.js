@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const MAIN_API_URL = process.env.MAIN_API_URL || 'http://127.0.0.1:4000';
 
-export function registerProxyRoutes(app, authenticateToken) {
+export function registerProxyRoutes(app, pool, authenticateToken) {
   // Прокси GET /api/partners
   app.get('/api/partners', {
     preHandler: [authenticateToken]
@@ -45,6 +45,31 @@ export function registerProxyRoutes(app, authenticateToken) {
           'Content-Type': 'application/json'
         }
       });
+
+      // Создать уведомление для целевого пользователя
+      const { targetId, type } = req.body;
+      const relationshipId = response.data?.relationship?.id || response.data?.id;
+
+      if (targetId) {
+        try {
+          // Получить имя отправителя
+          const sender = await pool.query('SELECT full_name FROM users WHERE id = $1', [req.user.id]);
+          const senderName = sender.rows[0]?.full_name || 'Пользователь';
+
+          // Текст уведомления зависит от типа связи
+          const relationshipTypeText = type === 'mentor' ? 'Наставника' : 'Партнера';
+          const notificationText = `${senderName} хочет добавить вас как ${relationshipTypeText}`;
+
+          await pool.query(
+            'INSERT INTO fogrup_notifications (user_id, type, from_user_id, relationship_id, text) VALUES ($1, $2, $3, $4, $5)',
+            [targetId, 'relationship_request', req.user.id, relationshipId, notificationText]
+          );
+        } catch (notifErr) {
+          console.error('[PROXY] Failed to create notification:', notifErr.message);
+          // Не блокируем основной запрос при ошибке создания уведомления
+        }
+      }
+
       return reply.send(response.data);
     } catch (err) {
       console.error('[PROXY] POST /api/relationships error:', err.message);

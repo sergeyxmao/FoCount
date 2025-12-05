@@ -331,16 +331,40 @@ const App: React.FC = () => {
                 
                 <h3 className="font-bold pt-4">Контакты</h3>
                 <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">Телефон</label>
-                    <input className="w-full border border-gray-300 rounded-lg p-3" value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} />
+                    <label className="block text-xs font-bold text-gray-400 mb-1">Телефон (он же WhatsApp)</label>
+                    <input 
+                        className="w-full border border-gray-300 rounded-lg p-3" 
+                        value={editForm.phone} 
+                        onChange={e => setEditForm({...editForm, phone: e.target.value})} 
+                        placeholder="+7..."
+                    />
                 </div>
                 <div>
                     <label className="block text-xs font-bold text-gray-400 mb-1">Telegram (username)</label>
-                    <input className="w-full border border-gray-300 rounded-lg p-3" value={editForm.telegram_user || ''} onChange={e => setEditForm({...editForm, telegram_user: e.target.value})} placeholder="@username" />
+                    <input 
+                        className="w-full border border-gray-300 rounded-lg p-3" 
+                        value={editForm.telegram_user || ''} 
+                        onChange={e => setEditForm({...editForm, telegram_user: e.target.value})} 
+                        placeholder="@username" 
+                    />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1">WhatsApp</label>
-                    <input className="w-full border border-gray-300 rounded-lg p-3" value={editForm.whatsapp_contact || ''} onChange={e => setEditForm({...editForm, whatsapp_contact: e.target.value})} />
+                    <label className="block text-xs font-bold text-gray-400 mb-1">ВКонтакте (ссылка на профиль)</label>
+                    <input 
+                        className="w-full border border-gray-300 rounded-lg p-3" 
+                        value={editForm.vk_profile || ''} 
+                        onChange={e => setEditForm({...editForm, vk_profile: e.target.value})} 
+                        placeholder="https://vk.com/..."
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1">Instagram (ссылка на профиль)</label>
+                    <input 
+                        className="w-full border border-gray-300 rounded-lg p-3" 
+                        value={editForm.instagram_profile || ''} 
+                        onChange={e => setEditForm({...editForm, instagram_profile: e.target.value})} 
+                        placeholder="https://instagram.com/..."
+                    />
                 </div>
 
                 <div className="pt-4">

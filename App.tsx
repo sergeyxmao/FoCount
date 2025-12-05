@@ -13,8 +13,11 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
-  // CORE DATA STATE
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  // Состояние для формы (копия текущего юзера)
+  const [editForm, setEditForm] = useState<User | null>(null);
+ 
+ // CORE DATA STATE
   const [partners, setPartners] = useState<Partner[]>([]);
   const [relationships, setRelationships] = useState<Relationship[]>(MOCK_RELATIONSHIPS);
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
@@ -262,6 +265,47 @@ const App: React.FC = () => {
         }));
     }
   };
+  
+  const handleStartEdit = () => {
+  setEditForm(currentUser);
+  setIsEditingProfile(true);
+};
+
+const handleSaveProfile = async () => {
+  if (!editForm) return;
+  try {
+    setIsLoading(true);
+    const response = await api.updateProfile(editForm);
+    
+    // Обновляем текущего пользователя данными с сервера
+    // Маппим ответ сервера обратно в формат фронтенда
+    const updatedUser = {
+        ...currentUser!,
+        name: response.user.full_name,
+        city: response.user.city,
+        country: response.user.country,
+        phone: response.user.phone,
+        office: response.user.office,
+        bio: response.user.bio,
+        telegram_user: response.user.telegram_user,
+        telegram_channel: response.user.telegram_channel,
+        whatsapp_contact: response.user.whatsapp_contact,
+        vk_profile: response.user.vk_profile,
+        instagram_profile: response.user.instagram_profile,
+        ok_profile: response.user.ok_profile
+    };
+
+    setCurrentUser(updatedUser);
+    localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
+    setIsEditingProfile(false);
+    alert('Профиль успешно обновлен!');
+  } catch (e) {
+    console.error(e);
+    alert('Ошибка при сохранении профиля');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // --------------------------------------------------------------------------
   // RENDER FLOW
@@ -337,6 +381,77 @@ const App: React.FC = () => {
 
   // 3. Main Logic
   const renderContent = () => {
+  if (isEditingProfile && editForm) {
+    return (
+        <div className="p-6 bg-white min-h-screen pb-20">
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Редактирование</h2>
+                <button onClick={() => setIsEditingProfile(false)} className="text-gray-500">Отмена</button>
+            </div>
+            
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1">Имя Фамилия</label>
+                    <input 
+                        className="w-full border border-gray-300 rounded-lg p-3"
+                        value={editForm.name}
+                        onChange={e => setEditForm({...editForm, name: e.target.value})}
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-xs font-bold text-gray-400 mb-1">Страна</label>
+                        <input 
+                            className="w-full border border-gray-300 rounded-lg p-3"
+                            value={editForm.country}
+                            onChange={e => setEditForm({...editForm, country: e.target.value})}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-400 mb-1">Город</label>
+                        <input 
+                            className="w-full border border-gray-300 rounded-lg p-3"
+                            value={editForm.city}
+                            onChange={e => setEditForm({...editForm, city: e.target.value})}
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1">О себе (Bio)</label>
+                    <textarea 
+                        className="w-full border border-gray-300 rounded-lg p-3 h-24"
+                        value={editForm.bio || ''}
+                        onChange={e => setEditForm({...editForm, bio: e.target.value})}
+                        placeholder="Расскажите о себе и своем опыте..."
+                    />
+                </div>
+                
+                <h3 className="font-bold pt-4">Контакты</h3>
+                <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1">Телефон</label>
+                    <input className="w-full border border-gray-300 rounded-lg p-3" value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1">Telegram (username)</label>
+                    <input className="w-full border border-gray-300 rounded-lg p-3" value={editForm.telegram_user || ''} onChange={e => setEditForm({...editForm, telegram_user: e.target.value})} placeholder="@username" />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1">WhatsApp</label>
+                    <input className="w-full border border-gray-300 rounded-lg p-3" value={editForm.whatsapp_contact || ''} onChange={e => setEditForm({...editForm, whatsapp_contact: e.target.value})} />
+                </div>
+
+                <div className="pt-4">
+                     <button 
+                        onClick={handleSaveProfile}
+                        className="w-full bg-amber-600 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform"
+                     >
+                        Сохранить изменения
+                     </button>
+                </div>
+            </div>
+        </div>
+    );
+}
     switch (activeTab) {
       case 'team':
       case 'global':
@@ -383,6 +498,14 @@ const App: React.FC = () => {
          );
       case 'profile':
         return (
+		<div className="flex justify-center mb-6">
+    <button 
+        onClick={handleStartEdit}
+        className="flex items-center gap-2 text-amber-600 border border-amber-600 px-4 py-2 rounded-full text-sm font-medium active:bg-amber-50"
+    >
+        <Icons.User /> Редактировать профиль
+    </button>
+</div>
           <div className="p-6">
              <div className="text-center mb-6">
                 <div className="w-24 h-24 bg-amber-100 rounded-full mx-auto mb-4 flex items-center justify-center text-amber-600 border-4 border-white shadow-lg overflow-hidden">

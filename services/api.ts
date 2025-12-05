@@ -484,6 +484,29 @@ if (!Array.isArray(partnersData)) {
     
     return response.json();
   },
+
+/**
+   * Получение уведомлений
+   */
+  getNotifications: async () => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/fogrup/notifications`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) return { notifications: [] };
+    return response.json();
+  },
+
+  /**
+   * Отметить уведомление прочитанным (или удалить)
+   */
+  markNotificationRead: async (id: string) => {
+    const token = localStorage.getItem('fohow_token');
+    await fetch(`${API_BASE_URL}/fogrup/notifications/${id}/read`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+  },  
 };
 
 

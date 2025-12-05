@@ -113,6 +113,23 @@ const handleSendRequest = async (type: RelationshipType) => {
   }
 };
 
+const handleDeleteRelationship = async (targetId: string) => {
+    if (!window.confirm('Вы уверены, что хотите удалить этого партнера из структуры/наставников?')) return;
+    
+    try {
+        await api.deleteRelationship(targetId);
+        // Удаляем из локального стейта
+        setRelationships(prev => prev.filter(r => 
+            r.initiatorId !== targetId && r.targetId !== targetId
+        ));
+        setSelectedPartner(null); // Закрываем окно деталей
+        alert('Связь удалена');
+    } catch (e) {
+        console.error(e);
+        alert('Ошибка удаления');
+    }
+};
+
 const handleAcceptNotification = async (notif: Notification) => {
   // Если это запрос на связь
   if (notif.type === 'relationship_request' && notif.relationshipId) {
@@ -463,6 +480,7 @@ const handleAcceptNotification = async (notif: Notification) => {
         onToggleFavorite={(id) => setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])}
         relationshipStatus={getRelationshipStatus(selectedPartner.id)}
         onSendRequest={handleSendRequest}
+		onDeleteRelationship={handleDeleteRelationship} // <--- ДОБАВЛЕНО
         onStartChat={handleStartChat}
       />
     );

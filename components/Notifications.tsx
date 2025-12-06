@@ -32,7 +32,8 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
     }
   }
 
-  async function handleAccept(notification: Notification) {
+  async function handleAccept(event: React.MouseEvent, notification: Notification) {
+    event.stopPropagation();
     try {
       await onAccept(notification);
       updateLocalReadState(notification.id);
@@ -41,7 +42,8 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
     }
   }
 
-  async function handleReject(notification: Notification) {
+  async function handleReject(event: React.MouseEvent, notification: Notification) {
+    event.stopPropagation();
     try {
       await onReject(notification);
       updateLocalReadState(notification.id);
@@ -87,13 +89,13 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
                 {notif.type === 'relationship_request' && (
                   <div className="flex gap-2 mt-2">
                     <button
-                      onClick={() => handleAccept(notif)}
+                      onClick={(event) => handleAccept(event, notif)}
                       className="flex-1 bg-amber-600 text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
                     >
                       <Icons.Check /> Подтвердить
                     </button>
                     <button
-                      onClick={() => handleReject(notif)}
+                      onClick={(event) => handleReject(event, notif)}
                       className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
                     >
                       <Icons.X /> Отклонить

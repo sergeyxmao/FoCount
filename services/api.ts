@@ -517,8 +517,11 @@ export const api = {
         ? data.notifications.map((n: any) => ({
             ...n,
             id: n.id?.toString?.() ?? n.id,
-            read: n.read ?? n.is_read ?? false,
-            is_read: n.is_read ?? n.read ?? false,
+            // API может отдавать read / is_read / isRead
+            ...( () => {
+              const normalizedRead = n.read ?? n.is_read ?? n.isRead ?? false;
+              return { read: normalizedRead, is_read: normalizedRead };
+            })(),
           }))
         : [],
     };

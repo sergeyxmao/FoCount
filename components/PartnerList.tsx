@@ -94,22 +94,22 @@ const PartnerList: React.FC<PartnerListProps> = ({
 
   // RENDER HELPERS
   const renderTeamTabs = () => (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar mb-4">
-       <button 
+    <div className="flex gap-2 overflow-x-auto no-scrollbar mb-4 justify-center">
+       <button
          onClick={() => setTeamSubTab('mentors')}
-         className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'mentors' ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
+         className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${teamSubTab === 'mentors' ? 'btn-gold-gradient text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200'}`}
        >
-         Наставники
+         Наставнини
        </button>
-       <button 
+       <button
          onClick={() => { setTeamSubTab('structure'); setSelectedRank(null); }}
-         className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'structure' ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
+         className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${teamSubTab === 'structure' ? 'btn-gold-gradient text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200'}`}
        >
-         Моя структура
+         Моя структра
        </button>
-       <button 
+       <button
        onClick={() => { setTeamSubTab('ranks'); setSelectedRank(Rank.EMERALD); }}
-        className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${teamSubTab === 'ranks' ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'}`}
+        className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${teamSubTab === 'ranks' ? 'btn-gold-gradient text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200'}`}
       >
         По статусу
       </button>
@@ -142,15 +142,15 @@ const PartnerList: React.FC<PartnerListProps> = ({
 
   return (
     <div className="pt-4 px-4 pb-4">
-      
+
       {/* Search Bar */}
       <div className="relative mb-4">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
           <Icons.Search />
         </div>
         <input
           type="text"
-          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-full bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
           placeholder={getSearchPlaceholder()}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -159,15 +159,15 @@ const PartnerList: React.FC<PartnerListProps> = ({
 
       {/* Sub Tabs for Team */}
       {activeTab === 'team' && !isClient && renderTeamTabs()}
-      
+
       {/* Rank Filters for Rank Tab */}
       {activeTab === 'team' && teamSubTab === 'ranks' && renderRankFilter()}
 
       {/* Broadcast Button */}
       {activeTab === 'team' && teamSubTab === 'ranks' && selectedRank && filteredList.length > 0 && onBroadcast && (
-          <button 
+          <button
             onClick={() => onBroadcast(selectedRank, filteredList)}
-            className="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold active:bg-amber-100"
+            className="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 py-3 rounded-full flex items-center justify-center gap-2 font-semibold active:bg-amber-100"
           >
              <Icons.Mail />
              Написать всем ({filteredList.length})
@@ -182,18 +182,18 @@ const PartnerList: React.FC<PartnerListProps> = ({
              // Global: Restricted unless Public/Office
              const isConnected = activeTab === 'team';
              const showDetails = isConnected || partner.isPublic || partner.isOffice;
-             
+
              return (
-              <div 
+              <div
                 key={partner.id}
                 onClick={() => onSelectPartner(partner, isConnected ? 'team' : 'global')}
                 className={`rounded-2xl p-4 shadow-sm border flex items-center gap-4 active:scale-[0.99] transition-transform bg-white border-gray-100`}
               >
                 <div className="relative">
-                  <img 
-                    src={partner.avatar} 
-                    alt={partner.name} 
-                    className={`w-14 h-14 rounded-full object-cover shadow-sm ${!showDetails ? 'grayscale opacity-90' : ''}`}
+                  <img
+                    src={partner.avatar}
+                    alt={partner.name}
+                    className={`w-14 h-14 rounded-full object-cover avatar-gold-ring ${!showDetails ? 'grayscale opacity-90' : ''}`}
                   />
                   {partner.isOffice && (
                     <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white rounded-full p-1 shadow-sm border-2 border-white">
@@ -201,25 +201,26 @@ const PartnerList: React.FC<PartnerListProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
                     <h3 className="text-base font-bold text-gray-900 truncate">{partner.name}</h3>
-                    {partner.rank && (
-                        <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wide font-bold">
-                            {partner.rank.split(' ')[0]}
-                        </span>
-                    )}
                   </div>
-                  
+
                   {showDetails && (
-                    <div className="text-[10px] text-gray-400 font-mono mb-0.5">{partner.fohowId}</div>
+                    <div className="text-xs text-gray-400 mb-0.5">
+                      {activeTab === 'team' ? partner.fohowId : `горх, ID, ${partner.country}`}
+                    </div>
                   )}
 
                   <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-1 text-gray-500 text-xs truncate">
-                        <span>{partner.city},</span>
-                        <span className="text-gray-400">{partner.country}</span>
+                        {activeTab !== 'team' && (
+                          <>
+                            <span>{partner.city},</span>
+                            <span className="text-gray-400">{partner.country}</span>
+                          </>
+                        )}
                     </div>
                     {!showDetails && (
                        <span className="text-[10px] text-gray-400 flex items-center gap-1">
@@ -228,10 +229,20 @@ const PartnerList: React.FC<PartnerListProps> = ({
                     )}
                   </div>
                 </div>
+
+                {/* Trash icon for team members */}
+                {activeTab === 'team' && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); }}
+                    className="p-2 text-amber-600 hover:text-amber-700"
+                  >
+                    <Icons.Trash />
+                  </button>
+                )}
               </div>
             );
         })}
-        
+
         {filteredList.length === 0 && (
           <div className="text-center py-10 text-gray-400">
             <p>Никого не найдено</p>

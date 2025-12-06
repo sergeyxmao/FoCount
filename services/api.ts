@@ -4,6 +4,26 @@ import { MOCK_PARTNERS } from '../constants';
 const API_BASE_URL = 'https://interactive.marketingfohow.ru/api';
 const USE_MOCK_API = false;
 
+async function authorizedRequest(path: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('fohow_token');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    ...(options.headers || {}),
+  };
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return response;
+}
+
 // Конвертер формата search_settings из БД в формат фронтенда
 function convertSearchSettings(dbSettings: any) {
   if (!dbSettings) {
@@ -621,3 +641,9 @@ export const api = {
     return response.json();
   }
 };
+
+export async function markNotificationAsRead(id: number): Promise<void> {
+  await authorizedRequest(`/notifications/${id}/read`, {
+    method: 'PUT',
+  });
+}

@@ -5,7 +5,6 @@ const API_BASE_URL = 'https://interactive.marketingfohow.ru/api';
 const USE_MOCK_API = false;
 
 // Конвертер формата search_settings из БД в формат фронтенда
-// Исправленная функция: если в БД уже лежат новые ключи, берем их.
 function convertSearchSettings(dbSettings: any) {
   if (!dbSettings) {
     return {
@@ -54,7 +53,7 @@ export const api = {
   /**
    * Авторизация пользователя
    */
- login: async (loginId: string, password: string): Promise<User> => {
+  login: async (loginId: string, password: string): Promise<User> => {
     try {
       // Определяем тип входа: email или personal_id
       const isEmail = loginId.includes('@');
@@ -128,6 +127,7 @@ export const api = {
       throw new Error(error.message || 'Произошла ошибка входа');
     }
   },
+
   /**
    * Получение текущего пользователя из localStorage
    */
@@ -189,16 +189,16 @@ export const api = {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-const result = await response.json();
+      const result = await response.json();
 
-// Обрабатываем структуру ответа API
-const partnersData = result.success ? result.data : (result.partners || []);
+      // Обрабатываем структуру ответа API
+      const partnersData = result.success ? result.data : (result.partners || []);
 
-// Проверяем что есть массив
-if (!Array.isArray(partnersData)) {
-  console.error('API вернул не массив:', result);
-  return [];
-}
+      // Проверяем что есть массив
+      if (!Array.isArray(partnersData)) {
+        console.error('API вернул не массив:', result);
+        return [];
+      }
 
       return partnersData.map((p: any) => ({
         id: p.id.toString(),
@@ -238,8 +238,6 @@ if (!Array.isArray(partnersData)) {
       throw new Error(error.message || 'Не удалось загрузить список');
     }
   },
-
-  
 
   /**
    * Получение профиля партнера по ID
@@ -404,19 +402,18 @@ if (!Array.isArray(partnersData)) {
     return response.json();
   },
 
-/**
+  /**
    * Обновление настроек видимости
    */
   updateVisibilitySettings: async (settings: any) => {
     const token = localStorage.getItem('fohow_token');
-    // Исправлено: отправляем на /users/visibility (без /me/settings)
     const response = await fetch(`${API_BASE_URL}/users/visibility`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify(settings), // Отправляем чистый объект { showPhone: true }
+      body: JSON.stringify(settings),
     });
 
     if (!response.ok) {
@@ -431,7 +428,6 @@ if (!Array.isArray(partnersData)) {
    */
   updateSearchSettings: async (settings: any) => {
     const token = localStorage.getItem('fohow_token');
-    // Исправлено: отправляем на /users/search и НЕ конвертируем ключи обратно в старые
     const response = await fetch(`${API_BASE_URL}/users/search`, {
       method: 'PUT',
       headers: {
@@ -446,13 +442,11 @@ if (!Array.isArray(partnersData)) {
   },
   
   /**
-   * Обновление данных профиля (Имя, Город, Био и т.д.)
+   * Обновление данных профиля
    */
   updateProfile: async (data: Partial<User>) => {
     const token = localStorage.getItem('fohow_token');
     
-    // Маппинг полей фронтенда на поля бэкенда (если они отличаются)
-    // В User у нас camelCase, а бэкенд ждет snake_case для некоторых полей
     const payload = {
       full_name: data.name,
       city: data.city,
@@ -485,11 +479,12 @@ if (!Array.isArray(partnersData)) {
     return response.json();
   },
 
-/**
+  /**
    * Получение уведомлений
    */
   getNotifications: async () => {
     const token = localStorage.getItem('fohow_token');
+    // Убран /fogrup, теперь путь совпадает с сервером
     const response = await fetch(`${API_BASE_URL}/notifications`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
@@ -498,18 +493,15 @@ if (!Array.isArray(partnersData)) {
   },
 
   /**
-   * Отметить уведомление прочитанным (или удалить)
+   * Отметить уведомление прочитанным
    */
   markNotificationRead: async (id: string) => {
     const token = localStorage.getItem('fohow_token');
-    const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+    // Убран /fogrup, теперь путь совпадает с сервером
+    await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token}` },
     });
-    if (!response.ok) {
-      throw new Error(`Failed to mark notification as read: ${response.status}`);
-    }
-    return response.json();
   },
 
   /**
@@ -525,8 +517,8 @@ if (!Array.isArray(partnersData)) {
     return response.json();
   },
 
-/**
-   * Получение свежего профиля (для синхронизации)
+  /**
+   * Получение свежего профиля
    */
   fetchUserProfile: async (): Promise<User> => {
     const token = localStorage.getItem('fohow_token');
@@ -538,7 +530,6 @@ if (!Array.isArray(partnersData)) {
     const data = await response.json();
     const u = data.user;
     
-    // Маппинг данных
     return {
         id: u.id.toString(),
         fohowId: u.personal_id || u.email,
@@ -565,14 +556,14 @@ if (!Array.isArray(partnersData)) {
         isPublic: true,
         isOffice: u.office ? true : false,
         
-        // Передаем настройки напрямую
         visibilitySettings: u.visibility_settings || {},
-        // Используем конвертер для правильного маппинга настроек поиска
         searchSettings: convertSearchSettings(u.search_settings),
         blockedUserIds: u.blocked_users || [],
         token: token! 
     };
-    /**
+  },
+
+  /**
    * Получить список чатов
    */
   getChats: async () => {
@@ -628,5 +619,5 @@ if (!Array.isArray(partnersData)) {
     });
     if (!response.ok) throw new Error('Ошибка отправки');
     return response.json();
-  },
+  }
 };

@@ -31,12 +31,16 @@ export function registerNotificationRoutes(app, pool, authenticateToken) {
     const { id } = req.params;
 
     try {
-      await pool.query(
+      const result = await pool.query(
         'UPDATE fogrup_notifications SET is_read = TRUE WHERE id = $1 AND user_id = $2',
         [id, req.user.id]
       );
 
-      return reply.send({ success: true });
+      if (result.rowCount === 0) {
+        return reply.code(404).send({ error: 'Уведомление не найдено' });
+      }
+
+      return reply.code(204).send();
     } catch (err) {
       console.error('[NOTIFICATIONS] Mark read error:', err);
       return reply.code(500).send({ error: 'Ошибка сервера' });

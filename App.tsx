@@ -149,14 +149,15 @@ const App: React.FC = () => {
       } catch (e) { console.error(e); alert('Ошибка удаления'); }
   };
   const markNotificationAsRead = async (notif: Notification) => {
-    // Оптимистично помечаем прочитанным даже при проблемах с API,
-    // чтобы значок колокольчика корректно очищался сразу.
-    setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true, is_read: true } : n));
-	  
+  
     try {
       await api.markNotificationRead(notif.id);
+      // Убираем уведомление после успешного подтверждения чтения,
+      // чтобы оно не возвращалось в список "новых" при следующей синхронизации.
+      setNotifications(prev => prev.filter(n => n.id !== notif.id));		
     } catch (e) {
       console.error(e);
+      throw e;		
     }
   };
 	
@@ -188,6 +189,15 @@ const App: React.FC = () => {
   };
 
   const handleRejectNotification = async (notif: Notification) => {
+    if (notif.type === 'relationship_request' && notif.relationshipId) {
+      try {
+        await api.respondToRelationship(notif.relationshipId, 'rejected');
+      } catch (e) {
+        console.error(e);
+        return;
+      }
+    }
+	  
     await markNotificationAsRead(notif);
   };
 

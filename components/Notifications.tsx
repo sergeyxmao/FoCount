@@ -38,6 +38,7 @@ const Notifications: React.FC<NotificationsProps> = ({
     event.stopPropagation();
     try {
       await onAccept(notification);
+      await onMarkAsRead(notification);      
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
     } catch (error) {
       console.error('Не удалось отметить уведомление прочитанным', error);

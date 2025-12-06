@@ -17,11 +17,10 @@
       }
       body {
         -webkit-tap-highlight-color: transparent;
-        background: linear-gradient(180deg, #E8DCC4 0%, #D4AF37 50%, #C4A035 100%);
-        min-height: 100vh;
+        background-color: #f3f4f6;
       }
 
-      /* Gold palette */
+      /* Gold palette to replace any green accents */
       :root {
         --gold-900: 139 107 4;
         --gold-800: 160 120 7;
@@ -32,30 +31,6 @@
         --gold-200: 247 230 184;
         --gold-100: 253 244 220;
         --gold-50: 255 249 237;
-      }
-
-      /* Golden gradient background */
-      .bg-gradient-gold {
-        background: linear-gradient(180deg, #E8DCC4 0%, #D4AF37 50%, #C4A035 100%);
-      }
-
-      /* Gradient button */
-      .btn-gold-gradient {
-        background: linear-gradient(135deg, #D4AF37 0%, #C4A035 100%);
-        box-shadow: 0 4px 15px rgba(196, 160, 53, 0.4);
-      }
-
-      /* Gold ring avatar */
-      .avatar-gold-ring {
-        border: 3px solid #D4AF37;
-        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-      }
-
-      /* Badge style */
-      .badge-gold {
-        background: linear-gradient(135deg, #D4AF37 0%, #C4A035 100%);
-        color: white;
-        font-weight: 600;
       }
 
       /* Override Tailwind amber utilities with gold shades */
@@ -85,65 +60,7 @@
       }
 
       .focus\:ring-amber-500:focus { --tw-ring-color: rgb(var(--gold-500)) !important; }
-      .focus\:border-amber-500:focus { border-color: rgb(var(--gold-500)) !important; }
-
-      /* Decorative star */
-      .star-decoration {
-        position: fixed;
-        bottom: 40px;
-        right: 40px;
-        width: 40px;
-        height: 40px;
-        opacity: 0.6;
-      }
-      .star-decoration::before,
-      .star-decoration::after {
-        content: '';
-        position: absolute;
-        background: linear-gradient(135deg, #FFF8E7 0%, #E8DCC4 100%);
-      }
-      .star-decoration::before {
-        width: 4px;
-        height: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        border-radius: 2px;
-      }
-      .star-decoration::after {
-        width: 40px;
-        height: 4px;
-        top: 50%;
-        transform: translateY(-50%);
-        border-radius: 2px;
-      }
-
-      /* Toggle switch */
-      .toggle-switch {
-        width: 44px;
-        height: 24px;
-        background-color: #E5E7EB;
-        border-radius: 12px;
-        position: relative;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-      .toggle-switch.active {
-        background-color: #D4AF37;
-      }
-      .toggle-switch::after {
-        content: '';
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        background: white;
-        border-radius: 50%;
-        top: 2px;
-        left: 2px;
-        transition: transform 0.2s;
-      }
-      .toggle-switch.active::after {
-        transform: translateX(20px);
-      }
+      .focus\:border-amber-500:focus { border-color: rgb(var(--gold-500)) !important; }      
     </style>
   <script type="importmap">
 {

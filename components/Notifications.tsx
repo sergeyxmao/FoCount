@@ -11,22 +11,24 @@ interface NotificationsProps {
   onClose: () => void;
 }
 
-const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNotifications, partners, onAccept, onReject, onMarkAsRead, onClose }) => {  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
-
+const Notifications: React.FC<NotificationsProps> = ({
+  notifications: initialNotifications,
+  partners,
+  onAccept,
+  onReject,
+  onMarkAsRead,
+  onClose
+}) => {
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   useEffect(() => {
     setNotifications(initialNotifications);
   }, [initialNotifications]);
   const unreadNotifications = notifications.filter(n => !(n.read || n.is_read));
 
-  const updateLocalReadState = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(n => n.id === notificationId ? { ...n, read: true, is_read: true } : n)
-    );
-  };
   async function handleNotificationClick(notification: Notification) {
     try {
       await onMarkAsRead(notification);
-      updateLocalReadState(notification.id);
+      setNotifications(prev => prev.filter(n => n.id !== notification.id));
     } catch (error) {
       console.error('Не удалось отметить уведомление прочитанным', error);
     }
@@ -36,7 +38,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
     event.stopPropagation();
     try {
       await onAccept(notification);
-      updateLocalReadState(notification.id);
+      setNotifications(prev => prev.filter(n => n.id !== notification.id));
     } catch (error) {
       console.error('Не удалось отметить уведомление прочитанным', error);
     }
@@ -46,7 +48,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
     event.stopPropagation();
     try {
       await onReject(notification);
-      updateLocalReadState(notification.id);
+      setNotifications(prev => prev.filter(n => n.id !== notification.id));
     } catch (error) {
       console.error('Не удалось отметить уведомление прочитанным', error);
     }

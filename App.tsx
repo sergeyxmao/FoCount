@@ -22,7 +22,7 @@ const App: React.FC = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [relationships, setRelationships] = useState<Relationship[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
-  onst [chats, setChats] = useState<Chat[]>([]);
+  const [chats, setChats] = useState<Chat[]>([]);
   
   // UI STATE
   const [activeTab, setActiveTab] = useState<AppTab>('global');

@@ -11,7 +11,7 @@ interface PartnerDetailProps {
   relationshipStatus: 'none' | 'pending' | 'confirmed' | 'rejected';
   onSendRequest: (type: 'mentor' | 'downline') => void;
   onStartChat: () => void;
-  onDeleteRelationship: (id: string) => void; // <--- ДОБАВИТЬ
+  onDeleteRelationship: (id: string) => void;
 }
 
 const PartnerDetail: React.FC<PartnerDetailProps> = ({ 
@@ -31,7 +31,6 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
   const isConnected = relationshipStatus === 'confirmed';
 
   // 1. Phone Visibility
-  // Visible if: Connected OR (Public AND visibility.showPhone is true)
   const isPhoneVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showPhone);
 
   // 2. Email Visibility
@@ -50,7 +49,6 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
   const isWhatsAppVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showWhatsApp);
 
   // 7. Chat Permission
-  // Allowed if: Connected OR (Public AND visibility.allowCrossLineMessages is true)
   const canChat = isConnected || (partner.isPublic && partner.visibilitySettings?.allowCrossLineMessages);
 
   // General Access (at least something is visible)
@@ -95,45 +93,45 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
           )}
         </div>
 
-       {/* CONNECTION REQUEST BUTTONS (Only if not connected) */}
-{!isClient && !isConnected && (
-    <div className="flex gap-2 justify-center mb-6">
-        {relationshipStatus === 'pending' ? (
-            <button disabled className="bg-gray-100 text-gray-500 px-6 py-2 rounded-full text-sm font-medium">
-                Запрос отправлен...
-            </button>
-        ) : (
-            <>
-                <button 
-                    onClick={() => onSendRequest('mentor')}
-                    className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-amber-100"
-                >
-                    + В Наставники
-                </button>
-                <button 
-                    onClick={() => onSendRequest('downline')}
-                    className="bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-gray-100"
-                >
-                    + В Партнеры
-                </button>
-            </>
-        )}
-    </div>
-)}
+       {/* CONNECTION REQUEST BUTTONS */}
+       {!isClient && !isConnected && (
+            <div className="flex gap-2 justify-center mb-6">
+                {relationshipStatus === 'pending' ? (
+                    <button disabled className="bg-gray-100 text-gray-500 px-6 py-2 rounded-full text-sm font-medium">
+                        Запрос отправлен...
+                    </button>
+                ) : (
+                    <>
+                        <button 
+                            onClick={() => onSendRequest('mentor')}
+                            className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-amber-100"
+                        >
+                            + В Наставники
+                        </button>
+                        <button 
+                            onClick={() => onSendRequest('downline')}
+                            className="bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-gray-100"
+                        >
+                            + В Партнеры
+                        </button>
+                    </>
+                )}
+            </div>
+       )}
 
-{/* КНОПКА УДАЛЕНИЯ (Если связь подтверждена) */}
-{!isClient && isConnected && (
-    <div className="flex gap-2 justify-center mb-6">
-        <button 
-            onClick={() => onDeleteRelationship(partner.id)}
-            className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-red-100 flex items-center gap-2"
-        >
-            <Icons.X /> Удалить из команды
-        </button>
-    </div>
-)}
+       {/* DELETE BUTTON */}
+       {!isClient && isConnected && (
+            <div className="flex gap-2 justify-center mb-6">
+                <button 
+                    onClick={() => onDeleteRelationship(partner.id)}
+                    className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-red-100 flex items-center gap-2"
+                >
+                    <Icons.X /> Удалить из команды
+                </button>
+            </div>
+       )}
 
-        {/* CHAT BUTTON (If permission allows) */}
+        {/* CHAT BUTTON */}
         {canChat && !isClient && (
              <div className="flex gap-2 justify-center mb-6">
                  <button 
@@ -212,49 +210,69 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
                    )}
                </div>
 
-               <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                   <span className="text-gray-500 text-sm">Telegram</span>
-                   {isTelegramVisible && partner.telegram_user ? (
-                       <a href={`https://t.me/${partner.telegram_user.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
-                         @{partner.telegram_user.replace('@', '')}
-                       </a>
-                   ) : (
-                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
-                   )}
-               </div>
+               {/* TELEGRAM */}
+               {(!isTelegramVisible || partner.telegram_user) && (
+                 <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                     <span className="text-gray-500 text-sm">Telegram</span>
+                     {!isTelegramVisible ? (
+                         <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                     ) : partner.telegram_user ? (
+                         <a href={`https://t.me/${partner.telegram_user.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                           @{partner.telegram_user.replace('@', '')}
+                         </a>
+                     ) : null}
+                 </div>
+               )}
 
-               <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                   <span className="text-gray-500 text-sm">WhatsApp</span>
-                   {isWhatsAppVisible && partner.whatsapp_contact ? (
-                       <a href={`https://wa.me/${partner.whatsapp_contact.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
-                         {partner.whatsapp_contact}
-                       </a>
-                   ) : (
-                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
-                   )}
-               </div>
+               {/* WHATSAPP - ИСПРАВЛЕННАЯ ЛОГИКА */}
+               {(() => {
+                   // Берем номер из whatsapp_contact, если пусто - берем phone
+                   const whatsappValue = partner.whatsapp_contact || partner.phone;
+                   
+                   // Если нет номера вообще - не показываем строку, даже если разрешено
+                   if (!whatsappValue) return null;
+                   
+                   return (
+                     <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                         <span className="text-gray-500 text-sm">WhatsApp</span>
+                         {!isWhatsAppVisible ? (
+                             <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                         ) : (
+                             <a href={`https://wa.me/${whatsappValue.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                               {whatsappValue}
+                             </a>
+                         )}
+                     </div>
+                   );
+               })()}
 
-               <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                   <span className="text-gray-500 text-sm">VK</span>
-                   {isVKVisible && partner.vk_profile ? (
-                       <a href={partner.vk_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
-                         Профиль
-                       </a>
-                   ) : (
-                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
-                   )}
-               </div>
+               {/* VK */}
+               {(!isVKVisible || partner.vk_profile) && (
+                 <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                     <span className="text-gray-500 text-sm">VK</span>
+                     {!isVKVisible ? (
+                         <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                     ) : partner.vk_profile ? (
+                         <a href={partner.vk_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                           Профиль
+                         </a>
+                     ) : null}
+                 </div>
+               )}
 
-               <div className="flex items-center justify-between py-1 border-b border-gray-50">
-                   <span className="text-gray-500 text-sm">Instagram</span>
-                   {isInstagramVisible && partner.instagram_profile ? (
-                       <a href={partner.instagram_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
-                         Профиль
-                       </a>
-                   ) : (
-                       <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
-                   )}
-               </div>
+               {/* INSTAGRAM */}
+               {(!isInstagramVisible || partner.instagram_profile) && (
+                 <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                     <span className="text-gray-500 text-sm">Instagram</span>
+                     {!isInstagramVisible ? (
+                         <span className="text-gray-400 text-xs flex items-center gap-1"><Icons.Lock /> Скрыто</span>
+                     ) : partner.instagram_profile ? (
+                         <a href={partner.instagram_profile} target="_blank" rel="noopener noreferrer" className="text-gray-900 font-medium hover:text-amber-600">
+                           Профиль
+                         </a>
+                     ) : null}
+                 </div>
+               )}
             </div>
           )}
         </div>

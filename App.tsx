@@ -22,7 +22,7 @@ const App: React.FC = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [relationships, setRelationships] = useState<Relationship[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
-  const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
+  onst [chats, setChats] = useState<Chat[]>([]);
   
   // UI STATE
   const [activeTab, setActiveTab] = useState<AppTab>('global');
@@ -52,23 +52,23 @@ const App: React.FC = () => {
 const loadPartners = async () => {
   try {
     setIsLoading(true);
-
-    const [partnersData, relData, notifData] = await Promise.all([
+    
+    const [partnersData, relData, notifData, chatsData] = await Promise.all([
         api.getPartners(),
         api.getMyRelationships(),
-        api.getNotifications() // <--- ДОБАВЛЕНО
+        api.getNotifications(),
+        api.getChats() // <--- ДОБАВЛЕНО
     ]);
-
+    
     setPartners(partnersData);
-
-    if (relData && relData.relationships) {
-         setRelationships(relData.relationships);
-    }
-
+    
+    if (relData && relData.relationships) setRelationships(relData.relationships);
+    if (notifData && notifData.notifications) setNotifications(notifData.notifications);
     // <--- ДОБАВЛЕНО
-    if (notifData && notifData.notifications) {
-        setNotifications(notifData.notifications);
-    }
+    if (chatsData && chatsData.chats) setChats(chatsData.chats.map((c: any) => ({
+         ...c, 
+         messages: [] // Изначально сообщений нет, подгрузим при открытии
+    })));
 
   } catch (e) {
     console.error("Failed to load data", e);
@@ -76,6 +76,29 @@ const loadPartners = async () => {
     setIsLoading(false);
   }
 };
+
+// Подгрузка сообщений при открытии чата
+useEffect(() => {
+    if (!activeChatId || activeChatId === 'broadcast') return;
+
+    const loadMessages = async () => {
+        try {
+            const data = await api.getChatMessages(activeChatId);
+            if (data.success) {
+                setChats(prev => prev.map(c => 
+                    c.id === activeChatId ? { ...c, messages: data.messages } : c
+                ));
+            }
+        } catch (e) {
+            console.error("Failed to load messages", e);
+        }
+    };
+
+    loadMessages();
+    // Можно добавить интервал для поллинга сообщений, если нужно
+    const interval = setInterval(loadMessages, 5000); // Обновление каждые 5 сек
+    return () => clearInterval(interval);
+}, [activeChatId]);
 
 // Синхронизация профиля пользователя каждые 5 секунд
 useEffect(() => {
@@ -218,25 +241,32 @@ const handleAcceptNotification = async (notif: Notification) => {
     }
   };
 
-  const handleStartChat = () => {
-    if (!currentUser || !selectedPartner) return;
-    const existingChat = chats.find(c => 
-      c.participantIds.includes(currentUser.id) && c.participantIds.includes(selectedPartner.id)
-    );
-    if (existingChat) {
-      setActiveChatId(existingChat.id);
-    } else {
-      const newChat: Chat = {
-        id: Date.now().toString(),
-        participantIds: [currentUser.id, selectedPartner.id],
-        messages: [],
-        lastMessageTime: Date.now()
-      };
-      setChats(prev => [...prev, newChat]);
-      setActiveChatId(newChat.id);
-    }
-    setSelectedPartner(null);
-  };
+const handleStartChat = async () => {
+  if (!currentUser || !selectedPartner) return;
+  
+  try {
+      const res = await api.createChat(selectedPartner.id);
+      if (res.success) {
+          const chatId = res.chatId;
+          
+          // Если чата нет в списке, добавим его
+          if (!chats.find(c => c.id === chatId)) {
+              const newChat: Chat = {
+                  id: chatId,
+                  participantIds: [currentUser.id, selectedPartner.id],
+                  messages: [],
+                  lastMessageTime: Date.now()
+              };
+              setChats(prev => [newChat, ...prev]);
+          }
+          
+          setActiveChatId(chatId);
+          setSelectedPartner(null);
+      }
+  } catch (e) {
+      alert('Не удалось начать чат');
+  }
+};
 
   // BLACKLIST & PRIVACY
   const handleBlockUser = (userId: string) => {
@@ -314,34 +344,49 @@ const handleAcceptNotification = async (notif: Notification) => {
     setBroadcastMode({ active: true, rank, targets });
   };
 
-  const handleSendMessage = (text: string) => {
-    if (!currentUser) return;
+const handleSendMessage = async (text: string) => {
+  if (!currentUser) return;
 
-    if (broadcastMode.active && broadcastMode.targets) {
-        // Broadcast Logic (Mocked)
-        alert(`Сообщение отправлено ${broadcastMode.targets.length} партнерам.`);
-        setBroadcastMode({ active: false });
-        return;
-    }
+  // Broadcast (без изменений)
+  if (broadcastMode.active && broadcastMode.targets) {
+      // ... старый код broadcast ...
+      alert('Рассылка пока работает только визуально');
+      setBroadcastMode({ active: false });
+      return;
+  }
 
-    if (activeChatId) {
-        setChats(prev => prev.map(chat => {
-            if (chat.id === activeChatId) {
-                return {
-                    ...chat,
-                    messages: [...chat.messages, {
-                        id: Date.now().toString(),
-                        senderId: currentUser.id,
-                        text: text,
-                        timestamp: Date.now()
-                    }],
-                    lastMessageTime: Date.now()
-                };
-            }
-            return chat;
-        }));
-    }
-  };
+  // Direct Message
+  if (activeChatId) {
+      try {
+          // Оптимистичное обновление (показываем сообщение сразу)
+          const tempId = Date.now().toString();
+          setChats(prev => prev.map(chat => {
+              if (chat.id === activeChatId) {
+                  return {
+                      ...chat,
+                      messages: [...chat.messages, {
+                          id: tempId,
+                          senderId: currentUser.id,
+                          text: text,
+                          timestamp: Date.now()
+                      }],
+                      lastMessageTime: Date.now()
+                  };
+              }
+              return chat;
+          }));
+
+          // Отправка на сервер
+          const res = await api.sendMessage(activeChatId, text);
+          
+          // Если успешно, можно обновить ID сообщения, но при поллинге оно и так обновится
+          
+      } catch (e) {
+          console.error(e);
+          alert('Ошибка при отправке');
+      }
+  }
+};
   
   // EDIT PROFILE LOGIC
   const handleStartEdit = () => {

@@ -533,9 +533,17 @@ export const api = {
    * Отметить уведомление прочитанным
    */
   markNotificationRead: async (id: string) => {
-    await authorizedRequest(`/notifications/${id}/read`, {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
       method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+
+    if (!response.ok) {
+      throw new Error('Не удалось отметить уведомление прочитанным');
+    }
   },
 
   /**

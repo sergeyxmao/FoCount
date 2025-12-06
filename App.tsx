@@ -35,7 +35,7 @@ const App: React.FC = () => {
   const [broadcastMode, setBroadcastMode] = useState<{ active: boolean, rank?: string, targets?: Partner[] }>({ active: false });
 
   // --------------------------------------------------------------------------
-  // INITIALIZATION & EFFECTS (Logic unchanged)
+  // INITIALIZATION & EFFECTS
   // --------------------------------------------------------------------------
   useEffect(() => {
     const user = api.getCurrentUser();
@@ -263,16 +263,15 @@ const App: React.FC = () => {
   
   const handleStartEdit = () => { setEditForm(currentUser); setIsEditingProfile(true); };
 
-const handleSaveProfile = async () => {
+  const handleSaveProfile = async () => {
     if (!editForm) return;
     try {
         setIsLoading(true);
         const response = await api.updateProfile(editForm);
-        
-        // ВОЗВРАЩАЕМ ПОЛНУЮ ПРИВЯЗКУ ПОЛЕЙ, КАК БЫЛО В ОРИГИНАЛЕ
+        // FULL FIELD MAPPING RESTORED
         const updatedUser = {
             ...currentUser!,
-            name: response.user.full_name || response.user.name, // Подстраховка
+            name: response.user.full_name || response.user.name,
             city: response.user.city,
             country: response.user.country,
             phone: response.user.phone,
@@ -285,17 +284,11 @@ const handleSaveProfile = async () => {
             instagram_profile: response.user.instagram_profile,
             ok_profile: response.user.ok_profile
         };
-
         setCurrentUser(updatedUser);
         localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
         setIsEditingProfile(false);
-        alert('Профиль успешно обновлен!');
-    } catch (e) {
-        console.error(e);
-        alert('Ошибка при сохранении профиля');
-    } finally {
-        setIsLoading(false);
-    }
+        alert('Профиль обновлен!');
+    } catch (e) { console.error(e); alert('Ошибка сохранения'); } finally { setIsLoading(false); }
   };
 
   // --------------------------------------------------------------------------
@@ -342,7 +335,7 @@ const handleSaveProfile = async () => {
                 </div>
                 
                 <h3 className="font-bold pt-4 text-[#D4AF37]">Соцсети</h3>
-                {['telegram_user', 'vk_profile', 'instagram_profile'].map(field => (
+                {['telegram_user', 'vk_profile', 'instagram_profile', 'whatsapp_contact'].map(field => (
                     <div key={field}>
                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{field}</label>
                         <input 
@@ -505,6 +498,12 @@ const handleSaveProfile = async () => {
                 </button>
              </div>
 
+             {currentUser?.bio && (
+                 <div className="bg-white rounded-[24px] p-6 shadow-sm mb-6 text-center">
+                     <p className="text-gray-600 text-sm italic">"{currentUser.bio}"</p>
+                 </div>
+             )}
+
              {/* Privacy Settings Card */}
              {currentUser?.visibilitySettings && (
                  <div className="bg-white rounded-[24px] p-6 shadow-sm mb-6">
@@ -533,7 +532,7 @@ const handleSaveProfile = async () => {
                  </div>
              )}
             
-            {/* Contacts Visibility */}
+            {/* Contacts Visibility (ВОССТАНОВЛЕН ПОЛНЫЙ СПИСОК) */}
             {currentUser?.visibilitySettings && (
                  <div className="bg-white rounded-[24px] p-6 shadow-sm mb-6">
                      <div className="flex items-center gap-2 mb-4">
@@ -545,6 +544,8 @@ const handleSaveProfile = async () => {
                          {[
                              { key: 'showTelegram', label: 'Показывать Telegram' },
                              { key: 'showWhatsApp', label: 'Показывать WhatsApp' },
+                             { key: 'showVK', label: 'Показывать VK' },         // Восстановлено
+                             { key: 'showInstagram', label: 'Показывать Instagram' } // Восстановлено
                          ].map(item => (
                              <div key={item.key} className="flex items-center justify-between">
                                  <span className="text-gray-600 text-sm font-medium">{item.label}</span>
@@ -560,6 +561,60 @@ const handleSaveProfile = async () => {
                  </div>
              )}
 
+             {/* Search Permissions (ВОССТАНОВЛЕНО ПОЛНОСТЬЮ) */}
+             {currentUser?.searchSettings && (
+                 <div className="bg-white rounded-[24px] p-6 shadow-sm mb-6">
+                     <div className="flex items-center gap-2 mb-4">
+                        <Icons.Search size={18} className="text-[#D4AF37]" />
+                        <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">ПАРАМЕТРЫ ПОИСКА</h3>
+                     </div>
+                     
+                     <div className="space-y-4">
+                        {[
+                            { key: 'searchByName', label: 'Искать по имени' },
+                            { key: 'searchByCity', label: 'Искать по городу' },
+                            { key: 'searchByCountry', label: 'Искать по стране' },
+                            { key: 'searchByPersonalId', label: 'Искать по номеру FOHOW' },
+                            { key: 'searchByOffice', label: 'Искать по представительству' }
+                        ].map(item => (
+                             <div key={item.key} className="flex items-center justify-between">
+                                 <span className="text-gray-600 text-sm font-medium">{item.label}</span>
+                                 <div 
+                                    onClick={() => toggleSearchSetting(item.key)}
+                                    className={`w-12 h-7 rounded-full flex items-center px-1 cursor-pointer transition-colors ${currentUser.searchSettings[item.key as keyof typeof currentUser.searchSettings] ? 'bg-[#D4AF37]' : 'bg-gray-200'}`}
+                                 >
+                                     <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform ${currentUser.searchSettings[item.key as keyof typeof currentUser.searchSettings] ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                                 </div>
+                             </div>
+                        ))}
+                     </div>
+                 </div>
+             )}
+
+             {/* Blacklist (ВОССТАНОВЛЕНО) */}
+             {currentUser?.blockedUserIds && currentUser.blockedUserIds.length > 0 && (
+                 <div className="bg-white rounded-[24px] p-6 shadow-sm mb-6">
+                     <div className="flex items-center gap-2 mb-4">
+                        <Icons.X size={18} className="text-red-400" />
+                        <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">ЧЕРНЫЙ СПИСОК</h3>
+                     </div>
+                     {currentUser.blockedUserIds.map(blockedId => {
+                         const blockedUser = partners.find(p => p.id === blockedId);
+                         return (
+                             <div key={blockedId} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                                 <span className="text-gray-700 text-sm font-medium">{blockedUser?.name || 'Пользователь'}</span>
+                                 <button 
+                                    onClick={() => handleUnblockUser(blockedId)}
+                                    className="text-xs text-red-500 font-bold px-3 py-1 rounded-full bg-red-50 hover:bg-red-100 transition-colors"
+                                 >
+                                     Разблокировать
+                                 </button>
+                             </div>
+                         );
+                     })}
+                 </div>
+             )}
+
              <button onClick={() => { api.logout(); setIsAuthenticated(false); setCurrentUser(null); }} className="w-full text-red-400 font-medium py-4 rounded-2xl bg-white shadow-sm hover:bg-red-50 transition-colors">
                 Выйти из аккаунта
              </button>
@@ -572,7 +627,6 @@ const handleSaveProfile = async () => {
   const isClient = currentUser?.role === 'client';
 
   return (
-    // Глобальный контейнер с фоном
     <div className="max-w-md mx-auto h-screen flex flex-col bg-gradient-to-br from-[#FDFBF7] via-[#F4EBD0] to-[#E2D1A6] shadow-2xl overflow-hidden md:border-x md:border-[#D4AF37]/20">
 
       {/* Header */}

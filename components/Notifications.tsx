@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Notification, Partner } from '../types';
 import { Icons } from '../constants';
+import { markNotificationAsRead } from '../services/api';
 
 interface NotificationsProps {
   notifications: Notification[];
@@ -10,7 +11,50 @@ interface NotificationsProps {
   onClose: () => void;
 }
 
-const Notifications: React.FC<NotificationsProps> = ({ notifications, partners, onAccept, onReject, onClose }) => {
+const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNotifications, partners, onAccept, onReject, onClose }) => {
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+
+  useEffect(() => {
+    setNotifications(initialNotifications);
+  }, [initialNotifications]);
+
+  async function handleNotificationClick(notification: Notification) {
+    try {
+      await markNotificationAsRead(Number(notification.id));
+
+      setNotifications(prev =>
+        prev.filter(n => n.id !== notification.id)
+      );
+    } catch (error) {
+      console.error('Не удалось отметить уведомление прочитанным', error);
+    }
+  }
+
+  async function handleAccept(notification: Notification) {
+    try {
+      await onAccept(notification);
+      await markNotificationAsRead(Number(notification.id));
+
+      setNotifications(prev =>
+        prev.filter(n => n.id !== notification.id)
+      );
+    } catch (error) {
+      console.error('Не удалось отметить уведомление прочитанным', error);
+    }
+  }
+
+  async function handleReject(notification: Notification) {
+    try {
+      await onReject(notification);
+      await markNotificationAsRead(Number(notification.id));
+
+      setNotifications(prev =>
+        prev.filter(n => n.id !== notification.id)
+      );
+    } catch (error) {
+      console.error('Не удалось отметить уведомление прочитанным', error);
+    }
+  }
   return (
     <div className="fixed inset-0 z-50 bg-gray-50 flex flex-col animate-fade-in h-screen">
       <div className="bg-white px-4 py-3 shadow-sm flex items-center gap-3 border-b border-gray-200">
@@ -30,7 +74,11 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, partners, 
             const sender = partners.find(p => p.id === notif.fromUserId);
             
             return (
-              <div key={notif.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+              <div
+                key={notif.id}
+                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                onClick={() => handleNotificationClick(notif)}
+              >
                 <div className="flex gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
                         {sender ? <img src={sender.avatar} alt="" /> : <Icons.User />}
@@ -44,14 +92,14 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, partners, 
                 
                 {notif.type === 'relationship_request' && (
                   <div className="flex gap-2 mt-2">
-                    <button 
-                      onClick={() => onAccept(notif)}
+                    <button
+                      onClick={() => handleAccept(notif)}
                       className="flex-1 bg-amber-600 text-white py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
                     >
                       <Icons.Check /> Подтвердить
                     </button>
-                    <button 
-                      onClick={() => onReject(notif)}
+                    <button
+                      onClick={() => handleReject(notif)}
                       className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
                     >
                       <Icons.X /> Отклонить

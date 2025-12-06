@@ -517,6 +517,8 @@ export const api = {
         ? data.notifications.map((n: any) => ({
             ...n,
             id: n.id?.toString?.() ?? n.id,
+            relationshipId: n.relationshipId ?? n.relationship_id ?? n.relationshipID,
+            fromUserId: n.fromUserId ?? n.from_user_id ?? n.fromUserID,          
             // API может отдавать read / is_read / isRead
             ...( () => {
               const normalizedRead = n.read ?? n.is_read ?? n.isRead ?? false;

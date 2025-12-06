@@ -509,18 +509,27 @@ export const api = {
       headers: { 'Authorization': `Bearer ${token}` },
     });
     if (!response.ok) return { notifications: [] };
-    return response.json();
+    const data = await response.json();
+
+    return {
+      ...data,
+      notifications: Array.isArray(data.notifications)
+        ? data.notifications.map((n: any) => ({
+            ...n,
+            id: n.id?.toString?.() ?? n.id,
+            read: n.read ?? n.is_read ?? false,
+            is_read: n.is_read ?? n.read ?? false,
+          }))
+        : [],
+    };
   },
 
   /**
    * Отметить уведомление прочитанным
    */
   markNotificationRead: async (id: string) => {
-    const token = localStorage.getItem('fohow_token');
-    // Убран /fogrup, теперь путь совпадает с сервером
-    await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+    await authorizedRequest(`/notifications/${id}/read`, {
       method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}` },
     });
   },
 
@@ -641,9 +650,3 @@ export const api = {
     return response.json();
   }
 };
-
-export async function markNotificationAsRead(id: number): Promise<void> {
-  await authorizedRequest(`/notifications/${id}/read`, {
-    method: 'PUT',
-  });
-}

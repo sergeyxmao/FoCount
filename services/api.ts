@@ -572,5 +572,62 @@ if (!Array.isArray(partnersData)) {
         blockedUserIds: u.blocked_users || [],
         token: token! 
     };
+    /**
+   * Получить список чатов
+   */
+  getChats: async () => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/chats`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) return { chats: [] };
+    return response.json();
+  },
+
+  /**
+   * Создать (или получить) чат с пользователем
+   */
+  createChat: async (targetId: string) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/chats`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ targetId }),
+    });
+    if (!response.ok) throw new Error('Не удалось открыть чат');
+    return response.json();
+  },
+
+  /**
+   * Получить сообщения чата
+   */
+  getChatMessages: async (chatId: string) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/chats/${chatId}/messages`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) return { messages: [] };
+    return response.json();
+  },
+
+  /**
+   * Отправить сообщение
+   */
+  sendMessage: async (chatId: string, text: string) => {
+    const token = localStorage.getItem('fohow_token');
+    const response = await fetch(`${API_BASE_URL}/chats/${chatId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ text }),
+    });
+    if (!response.ok) throw new Error('Ошибка отправки');
+    return response.json();
+  },
   },
 };

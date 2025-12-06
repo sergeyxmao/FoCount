@@ -335,8 +335,7 @@ const App: React.FC = () => {
                 </div>
                 
                 <h3 className="font-bold pt-4 text-[#D4AF37]">Соцсети</h3>
-                {['telegram_user', 'vk_profile', 'instagram_profile', 'whatsapp_contact'].map(field => (
-                    <div key={field}>
+                {['telegram_user', 'vk_profile', 'instagram_profile'].map(field => (                    <div key={field}>
                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{field}</label>
                         <input 
                             className="w-full border-b border-gray-200 py-2 focus:border-[#D4AF37] focus:outline-none transition-colors"

@@ -1,30 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { Notification, Partner } from '../types';
 import { Icons } from '../constants';
-import { markNotificationAsRead } from '../services/api';
 
 interface NotificationsProps {
   notifications: Notification[];
   partners: Partner[]; // To resolve names
-  onAccept: (notification: Notification) => void;
-  onReject: (notification: Notification) => void;
+  onAccept: (notification: Notification) => Promise<void>;
+  onReject: (notification: Notification) => Promise<void>;
+  onMarkAsRead: (notification: Notification) => Promise<void>;
   onClose: () => void;
 }
 
-const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNotifications, partners, onAccept, onReject, onClose }) => {
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNotifications, partners, onAccept, onReject, onMarkAsRead, onClose }) => {  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
 
   useEffect(() => {
     setNotifications(initialNotifications);
   }, [initialNotifications]);
+  const unreadNotifications = notifications.filter(n => !(n.read || n.is_read));
 
+  const updateLocalReadState = (notificationId: string) => {
+    setNotifications(prev =>
+      prev.map(n => n.id === notificationId ? { ...n, read: true, is_read: true } : n)
+    );
+  };
   async function handleNotificationClick(notification: Notification) {
     try {
-      await markNotificationAsRead(Number(notification.id));
-
-      setNotifications(prev =>
-        prev.filter(n => n.id !== notification.id)
-      );
+      await onMarkAsRead(notification);
+      updateLocalReadState(notification.id);
     } catch (error) {
       console.error('Не удалось отметить уведомление прочитанным', error);
     }
@@ -33,11 +35,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
   async function handleAccept(notification: Notification) {
     try {
       await onAccept(notification);
-      await markNotificationAsRead(Number(notification.id));
-
-      setNotifications(prev =>
-        prev.filter(n => n.id !== notification.id)
-      );
+      updateLocalReadState(notification.id);
     } catch (error) {
       console.error('Не удалось отметить уведомление прочитанным', error);
     }
@@ -46,11 +44,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
   async function handleReject(notification: Notification) {
     try {
       await onReject(notification);
-      await markNotificationAsRead(Number(notification.id));
-
-      setNotifications(prev =>
-        prev.filter(n => n.id !== notification.id)
-      );
+      updateLocalReadState(notification.id);
     } catch (error) {
       console.error('Не удалось отметить уведомление прочитанным', error);
     }
@@ -65,12 +59,12 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications: initialNot
       </div>
 
       <div className="p-4 space-y-3 overflow-y-auto flex-1">
-        {notifications.length === 0 ? (
-          <div className="text-center text-gray-500 mt-10">
+        {unreadNotifications.length === 0 ? (
+      <div className="text-center text-gray-500 mt-10">
             Нет новых уведомлений
           </div>
         ) : (
-          notifications.map(notif => {
+          unreadNotifications.map(notif => {
             const sender = partners.find(p => p.id === notif.fromUserId);
             
             return (

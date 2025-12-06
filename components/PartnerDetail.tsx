@@ -1,6 +1,7 @@
 import React from 'react';
 import { Partner, UserRole } from '../types';
 import { Icons } from '../constants';
+import { UserMinus } from 'lucide-react'; // Импортируем иконку удаления (человечек)
 
 interface PartnerDetailProps {
   partner: Partner;
@@ -119,55 +120,61 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
             </div>
        )}
 
-       {/* DELETE BUTTON */}
-       {!isClient && isConnected && (
-            <div className="flex gap-2 justify-center mb-6">
-                <button 
-                    onClick={() => onDeleteRelationship(partner.id)}
-                    className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-red-100 flex items-center gap-2"
-                >
-                    <Icons.X /> Удалить из команды
-                </button>
-            </div>
-       )}
-
-        {/* CHAT BUTTON */}
-        {canChat && !isClient && (
-             <div className="flex gap-2 justify-center mb-6">
-                 <button 
-                    onClick={onStartChat}
-                    className="bg-amber-600 text-white px-8 py-3 rounded-full text-sm font-bold shadow-lg shadow-amber-200 active:scale-95 transition-transform flex items-center gap-2"
-                 >
-                    <Icons.Message /> Написать сообщение
-                 </button>
-             </div>
-        )}
-        
-        {/* Contact Icons Row */}
+        {/* --- ПАНЕЛЬ ИКОНОК (Звонок, Сообщение, Избранное, Удалить) --- */}
         {hasAccess ? (
-          <div className="flex justify-center gap-6 pb-6 border-b border-gray-100">
+          <div className="flex justify-center gap-6 pb-6 border-b border-gray-100 mt-6">
+            
+            {/* 1. ЗВОНОК */}
             {isPhoneVisible ? (
                 <a href={`tel:${partner.phone}`} className="flex flex-col items-center gap-1 group text-gray-500 hover:text-amber-600">
-                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-200">
+                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-200 transition-colors group-hover:bg-amber-50 group-hover:border-amber-200">
                     <Icons.Phone />
                   </div>
-                  <span className="text-[10px]">Звонок</span>
+                  <span className="text-[10px] font-medium">Звонок</span>
                 </a>
             ) : (
                 <div className="flex flex-col items-center gap-1 group text-gray-300">
                   <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100">
                     <Icons.Lock />
                   </div>
-                  <span className="text-[10px]">Скрыто</span>
+                  <span className="text-[10px] font-medium">Скрыто</span>
                 </div>
             )}
             
+            {/* 2. НАПИСАТЬ СООБЩЕНИЕ (Новая иконка) */}
+            {canChat && !isClient && (
+                <button 
+                    onClick={onStartChat}
+                    className="flex flex-col items-center gap-1 group text-gray-500 hover:text-amber-600"
+                >
+                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-200 transition-colors group-hover:bg-amber-50 group-hover:border-amber-200">
+                    <Icons.Message />
+                  </div>
+                  <span className="text-[10px] font-medium">Написать</span>
+                </button>
+            )}
+
+            {/* 3. ИЗБРАННОЕ */}
             <button onClick={() => onToggleFavorite(partner.id)} className={`flex flex-col items-center gap-1 group ${isFavorite ? 'text-red-500' : 'text-gray-500'}`}>
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center border ${isFavorite ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-200'}`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center border transition-colors ${isFavorite ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-200 group-hover:border-red-200 group-hover:bg-red-50 group-hover:text-red-500'}`}>
                 <Icons.Heart filled={isFavorite} />
               </div>
-              <span className="text-[10px]">Избранное</span>
+              <span className="text-[10px] font-medium">Избранное</span>
             </button>
+
+            {/* 4. УДАЛИТЬ ИЗ КОМАНДЫ (Новая иконка - Красный человечек) */}
+            {!isClient && isConnected && (
+                <button 
+                    onClick={() => onDeleteRelationship(partner.id)}
+                    className="flex flex-col items-center gap-1 group text-red-500 hover:text-red-600"
+                >
+                  <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center border border-red-100 transition-colors group-hover:bg-red-100 group-hover:border-red-200">
+                    <UserMinus size={20} />
+                  </div>
+                  <span className="text-[10px] font-medium">Удалить</span>
+                </button>
+            )}
+
           </div>
         ) : (
             <div className="text-gray-400 text-sm italic mb-6">
@@ -177,7 +184,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
 
         <div className="mt-6 text-left space-y-4">
           <div>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">О партнера</h3>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">О партнере</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
                 {partner.bio || "Информация не указана."}
             </p>
@@ -224,12 +231,9 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
                  </div>
                )}
 
-               {/* WHATSAPP - ИСПРАВЛЕННАЯ ЛОГИКА */}
+               {/* WHATSAPP */}
                {(() => {
-                   // Берем номер из whatsapp_contact, если пусто - берем phone
                    const whatsappValue = partner.whatsapp_contact || partner.phone;
-                   
-                   // Если нет номера вообще - не показываем строку, даже если разрешено
                    if (!whatsappValue) return null;
                    
                    return (

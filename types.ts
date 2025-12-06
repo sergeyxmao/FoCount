@@ -85,6 +85,7 @@ export interface Notification {
   text: string;
   timestamp: number;
   read: boolean;
+  is_read?: boolean;  
 }
 
 export interface ChatMessage {

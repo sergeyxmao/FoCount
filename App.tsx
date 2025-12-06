@@ -149,9 +149,12 @@ const App: React.FC = () => {
       } catch (e) { console.error(e); alert('Ошибка удаления'); }
   };
   const markNotificationAsRead = async (notif: Notification) => {
+    // Оптимистично помечаем прочитанным даже при проблемах с API,
+    // чтобы значок колокольчика корректно очищался сразу.
+    setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true, is_read: true } : n));
+	  
     try {
       await api.markNotificationRead(notif.id);
-      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true, is_read: true } : n));
     } catch (e) {
       console.error(e);
     }

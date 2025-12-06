@@ -185,7 +185,6 @@ const App: React.FC = () => {
             }
         } catch (e) { console.error(e); return; }
     }
-    await markNotificationAsRead(notif);
   };
 
   const handleRejectNotification = async (notif: Notification) => {

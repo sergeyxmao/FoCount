@@ -148,7 +148,15 @@ const App: React.FC = () => {
           alert('Связь удалена');
       } catch (e) { console.error(e); alert('Ошибка удаления'); }
   };
-
+  const markNotificationAsRead = async (notif: Notification) => {
+    try {
+      await api.markNotificationRead(notif.id);
+      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true, is_read: true } : n));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+	
   const handleAcceptNotification = async (notif: Notification) => {
     if (notif.type === 'relationship_request' && notif.relationshipId) {
         try {
@@ -161,21 +169,15 @@ const App: React.FC = () => {
                      type: 'downline',
                      status: 'confirmed'
                  };
-                 setRelationships(prev => [...prev, newRel]);
-            }
+                setRelationships(prev => [...prev, newRel]);
+           }
         } catch (e) { console.error(e); return; }
     }
-    try {
-        await api.markNotificationRead(notif.id);
-        setNotifications(prev => prev.filter(n => n.id !== notif.id));
-    } catch (e) { console.error(e); }
+    await markNotificationAsRead(notif);
   };
 
   const handleRejectNotification = async (notif: Notification) => {
-    try {
-      await api.markNotificationRead(notif.id);
-      setNotifications(prev => prev.filter(n => n.id !== notif.id));
-    } catch (e) { console.error(e); }
+    await markNotificationAsRead(notif);
   };
 
   const handleStartChat = async () => {
@@ -405,11 +407,12 @@ const App: React.FC = () => {
 
   if (showNotifications) {
       return (
-          <Notifications 
-            notifications={notifications}
+          <Notifications
+			notifications={notifications}
             partners={partners}
             onAccept={handleAcceptNotification}
             onReject={handleRejectNotification}
+            onMarkAsRead={markNotificationAsRead}			  
             onClose={() => setShowNotifications(false)}
           />
       );
@@ -638,8 +641,7 @@ const App: React.FC = () => {
             </div>
         </div>
         <button onClick={() => setShowNotifications(true)} className="p-2 relative text-gray-500 hover:text-[#D4AF37] transition-colors">
-            <Icons.Bell alert={notifications.length > 0} />
-        </button>
+            <Icons.Bell alert={notifications.filter(n => !(n.read ?? n.is_read)).length > 0} />        </button>
       </header>
 
       {/* Main Content */}

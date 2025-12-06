@@ -1,7 +1,26 @@
 import React from 'react';
 import { Partner, UserRole } from '../types';
 import { Icons } from '../constants';
-import { UserMinus } from 'lucide-react'; // Импортируем иконку удаления (человечек)
+
+// --- ВСТРОЕННАЯ ИКОНКА (чтобы не требовалась библиотека lucide-react) ---
+const UserMinusIcon = ({ size = 24 }: { size?: number }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <line x1="22" x2="16" y1="11" y2="11" />
+  </svg>
+);
+// -----------------------------------------------------------------------
 
 interface PartnerDetailProps {
   partner: Partner;
@@ -169,7 +188,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
                     className="flex flex-col items-center gap-1 group text-red-500 hover:text-red-600"
                 >
                   <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center border border-red-100 transition-colors group-hover:bg-red-100 group-hover:border-red-200">
-                    <UserMinus size={20} />
+                    <UserMinusIcon size={20} />
                   </div>
                   <span className="text-[10px] font-medium">Удалить</span>
                 </button>
@@ -184,7 +203,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
 
         <div className="mt-6 text-left space-y-4">
           <div>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">О партнере</h3>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">О партнера</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
                 {partner.bio || "Информация не указана."}
             </p>

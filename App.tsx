@@ -263,17 +263,39 @@ const App: React.FC = () => {
   
   const handleStartEdit = () => { setEditForm(currentUser); setIsEditingProfile(true); };
 
-  const handleSaveProfile = async () => {
+const handleSaveProfile = async () => {
     if (!editForm) return;
     try {
         setIsLoading(true);
         const response = await api.updateProfile(editForm);
-        const updatedUser = { ...currentUser!, ...response.user };
+        
+        // ВОЗВРАЩАЕМ ПОЛНУЮ ПРИВЯЗКУ ПОЛЕЙ, КАК БЫЛО В ОРИГИНАЛЕ
+        const updatedUser = {
+            ...currentUser!,
+            name: response.user.full_name || response.user.name, // Подстраховка
+            city: response.user.city,
+            country: response.user.country,
+            phone: response.user.phone,
+            office: response.user.office,
+            bio: response.user.bio,
+            telegram_user: response.user.telegram_user,
+            telegram_channel: response.user.telegram_channel,
+            whatsapp_contact: response.user.whatsapp_contact,
+            vk_profile: response.user.vk_profile,
+            instagram_profile: response.user.instagram_profile,
+            ok_profile: response.user.ok_profile
+        };
+
         setCurrentUser(updatedUser);
         localStorage.setItem('fohow_user', JSON.stringify(updatedUser));
         setIsEditingProfile(false);
-        alert('Профиль обновлен!');
-    } catch (e) { console.error(e); alert('Ошибка сохранения'); } finally { setIsLoading(false); }
+        alert('Профиль успешно обновлен!');
+    } catch (e) {
+        console.error(e);
+        alert('Ошибка при сохранении профиля');
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   // --------------------------------------------------------------------------

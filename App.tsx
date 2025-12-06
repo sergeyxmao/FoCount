@@ -164,16 +164,24 @@ const App: React.FC = () => {
     if (notif.type === 'relationship_request' && notif.relationshipId) {
         try {
             await api.respondToRelationship(notif.relationshipId, 'confirmed');
-            if (notif.fromUserId && currentUser) {
-                 const newRel: Relationship = {
-                     id: notif.relationshipId,
-                     initiatorId: notif.fromUserId,
-                     targetId: currentUser.id,
-                     type: 'downline',
-                     status: 'confirmed'
-                 };
-                setRelationships(prev => [...prev, newRel]);
-           }
+            const relData = await api.getMyRelationships();
+            if (relData && relData.relationships) {
+              setRelationships(relData.relationships);
+            } else if (notif.fromUserId && currentUser) {
+              const newRel: Relationship = {
+                id: notif.relationshipId,
+                initiatorId: notif.fromUserId,
+                targetId: currentUser.id,
+                type: 'downline',
+                status: 'confirmed'
+              };
+              setRelationships(prev => {
+                const exists = prev.some(r => r.id === notif.relationshipId);
+                return exists
+                  ? prev.map(r => r.id === notif.relationshipId ? { ...r, status: 'confirmed' } : r)
+                  : [...prev, newRel];
+              });
+            }
         } catch (e) { console.error(e); return; }
     }
     await markNotificationAsRead(notif);

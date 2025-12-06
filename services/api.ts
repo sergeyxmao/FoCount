@@ -629,5 +629,4 @@ if (!Array.isArray(partnersData)) {
     if (!response.ok) throw new Error('Ошибка отправки');
     return response.json();
   },
-  },
 };

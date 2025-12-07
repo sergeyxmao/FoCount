@@ -745,4 +745,17 @@ export const api = {
     });
     return res.json()    
   }
+  sendBroadcast: async (recipientIds: string[], text: string) => {
+    const token = localStorage.getItem('fohow_token');
+    const res = await fetch(`${API_BASE_URL}/chats/broadcast`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ recipientIds, text })
+    });
+    return res.json();
+  },
+  
 };

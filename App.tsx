@@ -135,22 +135,12 @@ const App: React.FC = () => {
     return rel ? rel.status : 'none';
   };
 
-  const handleSendRequest = async (type: RelationshipType) => {
-    if (!currentUser || !selectedPartner) return;
+  const handleSendRequest = async (partnerId: string, type: RelationshipType) => {
+    if (!currentUser) return;
     try {
-      const response = await api.createRelationship(selectedPartner.id, type);
-      if (response?.alreadyExists) {
+      const response = await api.createRelationship(partnerId, type);
+      if (response?.alreadyExists || response.success) {
         await loadRelationships();
-        return;
-      }		
-      if (response.success && response.relationship) {
-           const newRel = {
-               ...response.relationship,
-               id: String(response.relationship.id),
-               initiatorId: String(response.relationship.initiatorId),
-               targetId: String(response.relationship.targetId)
-           };
-           setRelationships(prev => [...prev, newRel]);
       }
     } catch (e) { console.error(e); alert('Ошибка при отправке запроса.'); }
   };

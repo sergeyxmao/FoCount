@@ -48,6 +48,14 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, []);
+  const loadRelationships = async () => {
+    try {
+      const rels = await api.getMyRelationships();
+      setRelationships(rels);
+    } catch (error) {
+      console.error('Failed to load relationships', error);
+    }
+  };
 
   const loadPartners = async () => {
     try {
@@ -59,14 +67,19 @@ const App: React.FC = () => {
       ]);
       setPartners(partnersData);
       if (relationshipsData) setRelationships(relationshipsData);
-	  if (notifData && notifData.notifications) setNotifications(notifData.notifications);
-      if (chatsData && chatsData.chats) setChats(chatsData.chats.map((c: any) => ({ ...c, messages: [] })));
+          if (notifData && notifData.notifications) setNotifications(notifData.notifications);      if (chatsData && chatsData.chats) setChats(chatsData.chats.map((c: any) => ({ ...c, messages: [] })));
     } catch (e) {
       console.error("Failed to load data", e);
     } finally {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+    if (!currentUser) return;
+    if (activeTab === 'team') {
+      loadRelationships();
+    }
+  }, [activeTab, currentUser]);
 
   useEffect(() => {
       if (!activeChatId || activeChatId === 'broadcast') return;
@@ -164,9 +177,9 @@ const App: React.FC = () => {
     if (notif.type === 'relationship_request' && notif.relationshipId) {
         try {
             await api.respondToRelationship(notif.relationshipId, 'confirmed');
-            const relData = await api.getMyRelationships();
-            if (relData) {
-              setRelationships(relData);
+            const rels = await api.getMyRelationships();
+            if (rels) {
+              setRelationships(rels);
             } else if (notif.fromUserId && currentUser) {
               const newRel: Relationship = {
                 id: notif.relationshipId,

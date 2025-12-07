@@ -1,4 +1,3 @@
-const SOCKET_URL = 'http://localhost:4001';
 const SOCKET_URL = window.location.origin.replace(/:\d+/, ':4001');
 
 type EventCallback = (...args: any[]) => void;

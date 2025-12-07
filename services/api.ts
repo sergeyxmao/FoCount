@@ -6,12 +6,13 @@ const USE_MOCK_API = false;
 
 async function authorizedRequest(path: string, options: RequestInit = {}) {
   const token = localStorage.getItem('fohow_token');
-  const headers = {
-    'Content-Type': 'application/json',
+  const headers: HeadersInit = {
     Authorization: `Bearer ${token}`,
     ...(options.headers || {}),
   };
-
+  if (options.body !== undefined && !('Content-Type' in headers)) {
+    headers['Content-Type'] = 'application/json';
+  }
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
@@ -533,17 +534,15 @@ export const api = {
    * Отметить уведомление прочитанным
    */
   markNotificationRead: async (id: string) => {
-    const token = localStorage.getItem('fohow_token');
-    const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+    const response = await authorizedRequest(`/notifications/${id}/read`, {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
 
     if (!response.ok) {
       throw new Error('Не удалось отметить уведомление прочитанным');
     }
+
+    return response.json();    
   },
 
   /**

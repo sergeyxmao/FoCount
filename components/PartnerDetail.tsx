@@ -49,6 +49,15 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
   
   // LOGIC: Visibility based on Relations & Privacy Settings
   const isConnected = relationshipStatus === 'confirmed';
+  const relationshipBadge = (() => {
+    if (relationshipStatus === 'confirmed') {
+      return { text: 'Связь уже существует', className: 'bg-green-100 text-green-700 border-green-200' };
+    }
+    if (relationshipStatus === 'pending') {
+      return { text: 'Запрос отправлен', className: 'bg-amber-100 text-amber-700 border-amber-200' };
+    }
+    return null;
+  })();
 
   // 1. Phone Visibility
   const isPhoneVisible = isConnected || partner.isOffice || (partner.isPublic && partner.visibilitySettings?.showPhone);
@@ -111,6 +120,13 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
                Представительство
              </span>
           )}
+          {relationshipBadge && (
+            <span
+              className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${relationshipBadge.className}`}
+            >
+              {relationshipBadge.text}
+            </span>
+          )}          
         </div>
 
        {/* CONNECTION REQUEST BUTTONS */}

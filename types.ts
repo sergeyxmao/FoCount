@@ -102,6 +102,7 @@ export interface Chat {
   participantIds: string[];
   messages: ChatMessage[];
   lastMessageTime: number;
+  unreadCount?: number;  
 }
 
 export type AppTab = 'team' | 'global' | 'offices' | 'assistant' | 'chats' | 'profile' | 'favorites';

@@ -707,6 +707,14 @@ export const api = {
     if (!response.ok) return { messages: [] };
     return response.json();
   },
+  markChatAsRead: async (chatId: string) => {
+    const token = localStorage.getItem('fohow_token');
+    const res = await fetch(`${API_BASE_URL}/chats/${chatId}/read`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return res.json();
+  },
 
   /**
    * Отправить сообщение

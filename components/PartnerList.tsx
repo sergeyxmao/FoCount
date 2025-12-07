@@ -19,14 +19,19 @@ const PartnerList: React.FC<PartnerListProps> = ({
   activeTab,
   partners,
   relationships,
-  onSelectPartner, 
+  onSelectPartner,
   currentUser,
   onBroadcast
 }) => {
+  const safeRelationships = relationships ?? [];
+  
   const isClient = currentUser?.role === 'client';
   const [teamSubTab, setTeamSubTab] = useState<TeamSubTab>('structure');
   const [selectedRank, setSelectedRank] = useState<Rank | null>(null);
   const [search, setSearch] = useState('');
+  if (!relationships) {
+    console.warn('PartnerList: relationships is null/undefined, используем пустой массив');
+  }
 
   // FILTER LOGIC
   const filteredList = useMemo(() => {
@@ -56,16 +61,16 @@ const PartnerList: React.FC<PartnerListProps> = ({
 
     if (activeTab === 'team') {
         if (teamSubTab === 'mentors') {
-            const mentorIds = relationships
-                .filter(r => r.status === 'confirmed')
+            const mentorIds = safeRelationships
+              .filter(r => r.status === 'confirmed')
                 .filter(r => (r.initiatorId === currentUser.id && r.type === 'mentor') || (r.targetId === currentUser.id && r.type === 'downline'))
                 .map(r => r.initiatorId === currentUser.id ? r.targetId : r.initiatorId);
             
             list = list.filter(p => mentorIds.includes(p.id));
-        } 
+        }
         else if (teamSubTab === 'structure' || teamSubTab === 'ranks') {
-            const downlineIds = relationships
-                .filter(r => r.status === 'confirmed')
+            const downlineIds = safeRelationships
+              .filter(r => r.status === 'confirmed')
                 .filter(r => (r.initiatorId === currentUser.id && r.type === 'downline') || (r.targetId === currentUser.id && r.type === 'mentor'))
                 .map(r => r.initiatorId === currentUser.id ? r.targetId : r.initiatorId);
             
@@ -85,8 +90,7 @@ const PartnerList: React.FC<PartnerListProps> = ({
     }
 
     return [];
-  }, [partners, activeTab, teamSubTab, selectedRank, search, relationships, currentUser]);
-
+  }, [partners, activeTab, teamSubTab, selectedRank, search, safeRelationships, currentUser]);
   // RENDER HELPERS
   const renderTeamTabs = () => (
     <div className="flex gap-3 overflow-x-auto no-scrollbar mb-6 px-1">

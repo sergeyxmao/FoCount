@@ -52,15 +52,14 @@ const App: React.FC = () => {
   const loadPartners = async () => {
     try {
       setIsLoading(true);
-      const [partnersData, relData, notifData, chatsData] = await Promise.all([
-          api.getPartners(),
+      const [partnersData, relationshipsData, notifData, chatsData] = await Promise.all([          api.getPartners(),
           api.getMyRelationships(),
           api.getNotifications(),
           api.getChats()
       ]);
       setPartners(partnersData);
-      if (relData && relData.relationships) setRelationships(relData.relationships);
-      if (notifData && notifData.notifications) setNotifications(notifData.notifications);
+      if (relationshipsData) setRelationships(relationshipsData);
+	  if (notifData && notifData.notifications) setNotifications(notifData.notifications);
       if (chatsData && chatsData.chats) setChats(chatsData.chats.map((c: any) => ({ ...c, messages: [] })));
     } catch (e) {
       console.error("Failed to load data", e);
@@ -166,8 +165,8 @@ const App: React.FC = () => {
         try {
             await api.respondToRelationship(notif.relationshipId, 'confirmed');
             const relData = await api.getMyRelationships();
-            if (relData && relData.relationships) {
-              setRelationships(relData.relationships);
+            if (relData) {
+              setRelationships(relData);
             } else if (notif.fromUserId && currentUser) {
               const newRel: Relationship = {
                 id: notif.relationshipId,

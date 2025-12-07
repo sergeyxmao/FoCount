@@ -409,7 +409,28 @@ export const api = {
 
     return normalizedRelationships;
   },
+  /**
+   * Избранные пользователи
+   */
+  getFavorites: async () => {
+    const response = await authorizedRequest('/favorites');
+    return response.json();
+  },
 
+  addFavorite: async (favoriteUserId: string) => {
+    const response = await authorizedRequest('/favorites', {
+      method: 'POST',
+      body: JSON.stringify({ favoriteUserId })
+    });
+    return response.json();
+  },
+
+  removeFavorite: async (favoriteUserId: string) => {
+    const response = await authorizedRequest(`/favorites/${favoriteUserId}`, {
+      method: 'DELETE'
+    });
+    return response.json();
+  },
   /**
    * Блокировка пользователя
    */

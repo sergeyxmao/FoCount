@@ -1,6 +1,5 @@
 const SOCKET_URL = 'http://localhost:4001';
-const SOCKET_MODULE_URL =
-  'https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.esm.min.js';
+const SOCKET_URL = window.location.origin.replace(/:\d+/, ':4001');
 
 type EventCallback = (...args: any[]) => void;
 

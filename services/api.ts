@@ -100,7 +100,7 @@ export const api = {
       }
 
       const user: User = {
-        id: Number(data.user.id),
+        id: String(data.user.id),
         fohowId: data.user.personal_id || data.user.email,
         role: data.user.fohow_role || 'client',
         isVerified: data.user.is_verified || false,
@@ -137,7 +137,7 @@ export const api = {
           allowCrossLineMessages: true
         },
         searchSettings: convertSearchSettings(data.user.search_settings),
-        blockedUserIds: data.user.blocked_users || []
+        blockedUserIds: (data.user.blocked_users || []).map((id: any) => String(id))
       };
 
       localStorage.setItem('fohow_token', user.token);
@@ -162,7 +162,12 @@ export const api = {
       
       if (!token) return null;
       
-      return { ...user, token };
+      return {
+        ...user,
+        token,
+        id: String(user.id),
+        blockedUserIds: (user.blockedUserIds || []).map((id: any) => String(id))
+      };
     } catch (error) {
       console.error('Error getting current user:', error);
       return null;
@@ -222,7 +227,7 @@ export const api = {
       }
 
       return partnersData.map((p: any) => ({
-        id: Number(p.id),
+        id: String(p.id),
         fohowId: p.personal_id || p.email,
         name: p.full_name || p.username,
         rank: p.rank || Rank.NOVICE,
@@ -251,7 +256,7 @@ export const api = {
 
         visibilitySettings: p.visibility_settings,
         searchSettings: convertSearchSettings(p.search_settings),
-        blockedUserIds: p.blocked_users || []
+        blockedUserIds: (p.blocked_users || []).map((id: any) => String(id))
       }));
 
     } catch (error: any) {
@@ -328,7 +333,7 @@ export const api = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ targetId, type }),
+      body: JSON.stringify({ targetId: Number(targetId), type }),
     });
 
     if (!response.ok) {
@@ -395,9 +400,9 @@ export const api = {
       rawRelationships = [];
     }
     const normalizedRelationships = rawRelationships.map((r) => ({
-      id: Number(r.id),
-      initiatorId: Number(r.initiatorId ?? r.initiator_id),
-      targetId: Number(r.targetId ?? r.target_id),
+      id: String(r.id),
+      initiatorId: String(r.initiatorId ?? r.initiator_id),
+      targetId: String(r.targetId ?? r.target_id),
       type: r.type,
       status: r.status,
     }));
@@ -636,8 +641,8 @@ export const api = {
         
         visibilitySettings: u.visibility_settings || {},
         searchSettings: convertSearchSettings(u.search_settings),
-        blockedUserIds: u.blocked_users || [],
-        token: token! 
+        blockedUserIds: (u.blocked_users || []).map((id: any) => String(id)),
+        token: token!
     };
   },
 

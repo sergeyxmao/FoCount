@@ -27,6 +27,7 @@ interface PartnerDetailProps {
   currentUserRole: UserRole;
   onBack: () => void;
   isFavorite: boolean;
+  isFavoriteLoading: boolean;  
   onToggleFavorite: (id: string) => void;
   relationshipStatus: 'none' | 'pending' | 'confirmed' | 'rejected';
   onSendRequest: (partnerId: string, type: 'mentor' | 'downline') => void;
@@ -35,15 +36,16 @@ interface PartnerDetailProps {
 }
 
 const PartnerDetail: React.FC<PartnerDetailProps> = ({ 
-  partner, 
+  partner,
   currentUserRole,
-  onBack, 
-  isFavorite, 
-  onToggleFavorite, 
+  onBack,
+  isFavorite,
+  isFavoriteLoading,
+  onToggleFavorite,
   relationshipStatus,
   onSendRequest,
   onStartChat,
-  onDeleteRelationship, 
+  onDeleteRelationship,
 }) => {
   const isClient = currentUserRole === 'client';
   
@@ -190,9 +192,20 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
             )}
 
             {/* 3. ИЗБРАННОЕ */}
-            <button onClick={() => onToggleFavorite(partner.id)} className={`flex flex-col items-center gap-1 group ${isFavorite ? 'text-red-500' : 'text-gray-500'}`}>
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center border transition-colors ${isFavorite ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-200 group-hover:border-red-200 group-hover:bg-red-50 group-hover:text-red-500'}`}>
-                <Icons.Heart filled={isFavorite} />
+            <button
+              onClick={() => onToggleFavorite(partner.id)}
+              disabled={isFavoriteLoading}
+              className={`flex flex-col items-center gap-1 group ${isFavorite ? 'text-red-500' : 'text-gray-500'} ${isFavoriteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+            >
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center border transition-colors ${isFavorite ? 'bg-red-50 border-red-100' : 'bg-gray-50 border-gray-200 group-hover:border-red-200 group-hover:bg-red-50 group-hover:text-red-500'} ${isFavoriteLoading ? 'relative' : ''}`}>
+                {isFavoriteLoading ? (
+                  <svg className="w-5 h-5 animate-spin text-red-500" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                ) : (
+                  <Icons.Heart filled={isFavorite} />
+                )}
               </div>
               <span className="text-[10px] font-medium">Избранное</span>
             </button>

@@ -1,4 +1,4 @@
-import { Partner, User, AuthResponse, Rank } from '../types';
+import { Partner, User, AuthResponse, Rank, Relationship } from '../types';
 import { MOCK_PARTNERS } from '../constants';
 
 const API_BASE_URL = 'https://interactive.marketingfohow.ru/api';
@@ -356,33 +356,37 @@ export const api = {
   /**
    * Получение моих связей
    */
-  getMyRelationships: async () => {
+  getMyRelationships: async (): Promise<Relationship[]> => {
     const token = localStorage.getItem('fohow_token');
     const response = await fetch(`${API_BASE_URL}/relationships/my`, {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (!response.ok) {
       throw new Error('Не удалось загрузить связи');
     }
 
-    const data = await response.json();
+    const raw = await response.json();
 
-    // Нормализация массива связей под тип Relationship (строковые id + camelCase)
-    const normalizedRelationships = Array.isArray(data.relationships)
-      ? data.relationships.map((r: any) => ({
-          id: String(r.id),
-          initiatorId: String(r.initiatorId ?? r.initiator_id),
-          targetId: String(r.targetId ?? r.target_id),
-          type: r.type,
-          status: r.status,
-        }))
-      : [];
+    let rawRelationships: any[] = [];
+    if (Array.isArray(raw)) {
+      rawRelationships = raw;
+    } else if (Array.isArray(raw.relationships)) {
+      rawRelationships = raw.relationships;
+    } else if (Array.isArray(raw.data)) {
+      rawRelationships = raw.data;
+    } else {
+      rawRelationships = [];
+    }
+    const normalizedRelationships = rawRelationships.map((r) => ({
+      id: String(r.id),
+      initiatorId: String(r.initiatorId ?? r.initiator_id),
+      targetId: String(r.targetId ?? r.target_id),
+      type: r.type,
+      status: r.status,
+    }));
 
-    return {
-      ...data,
-      relationships: normalizedRelationships,
-    };
+    return normalizedRelationships;
   },
 
   /**

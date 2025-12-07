@@ -8,6 +8,7 @@ import LoginScreen from './components/LoginScreen';
 import Notifications from './components/Notifications';
 import ChatScreen from './components/ChatScreen';
 import { api } from './services/api';
+import { socketService } from './services/socket';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -46,8 +47,14 @@ const App: React.FC = () => {
       setCurrentUser(user);
       setIsAuthenticated(true);
       loadPartners();
-      setActiveTab('global'); 
-    } else {
+      setActiveTab('global');
+
+      // Подключение к WebSocket
+      const token = localStorage.getItem('fohow_token');
+      if (token) {
+        socketService.connect(token);
+      }
+	} else {
       setIsLoading(false);
     }
   }, []);
@@ -103,25 +110,79 @@ const App: React.FC = () => {
 
   useEffect(() => {
       if (!activeChatId || activeChatId === 'broadcast') return;
+
+      // Присоединиться к чату в WebSocket
+      socketService.joinChat(activeChatId);	  
       const loadMessages = async () => {
           try {
               const data = await api.getChatMessages(activeChatId);
               if (data.success) {
-                  setChats(prev => prev.map(c => 
-                    c.id === activeChatId 
-                      ? { ...c, messages: data.messages, unreadCount: 0 } 
+                  setChats(prev => prev.map(c =>
+                    c.id === activeChatId
+                      ? { ...c, messages: data.messages, unreadCount: 0 }
                       : c
                   ));
                   // Отметить как прочитанное
                   await api.markChatAsRead(activeChatId);
-			  }
-          } catch (e) { console.error(e); }
+                          }
+		  } catch (e) { console.error(e); }
       };
 	  
       loadMessages();
       const interval = setInterval(loadMessages, 5000);
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+        // Покинуть чат в WebSocket
+        socketService.leaveChat(activeChatId);
+      };
   }, [activeChatId]);
+
+  // WebSocket события
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Обработка новых сообщений
+    socketService.onNewMessage((data) => {
+      const { chatId, message } = data;
+      
+      setChats(prev => prev.map(chat => {
+        if (chat.id === chatId) {
+          // Если чат открыт, добавляем сообщение
+          if (activeChatId === chatId) {
+            return {
+              ...chat,
+              messages: [...chat.messages, message],
+              lastMessageTime: message.timestamp
+            };
+          }
+          // Если чат закрыт, увеличиваем счётчик
+          return {
+            ...chat,
+            unreadCount: (chat.unreadCount || 0) + 1,
+            lastMessageTime: message.timestamp
+          };
+        }
+        return chat;
+      }));
+    });
+
+    // Обработка обновления списка чатов
+    socketService.onChatsUpdated(async () => {
+      try {
+        const chatsData = await api.getChats();
+        if (chatsData && chatsData.chats) {
+          setChats(chatsData.chats.map((c: any) => ({ ...c, messages: [] })));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    return () => {
+      socketService.offNewMessage();
+      socketService.offChatsUpdated();
+    };
+  }, [isAuthenticated, activeChatId]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -735,8 +796,7 @@ const App: React.FC = () => {
                  </div>
              )}
 
-             <button onClick={() => { api.logout(); setIsAuthenticated(false); setCurrentUser(null); }} className="w-full text-red-400 font-medium py-4 rounded-2xl bg-white shadow-sm hover:bg-red-50 transition-colors">
-                Выйти из аккаунта
+             <button onClick={() => { socketService.disconnect(); api.logout(); setIsAuthenticated(false); setCurrentUser(null); }} className="w-full text-red-400 font-medium py-4 rounded-2xl bg-white shadow-sm hover:bg-red-50 transition-colors">                Выйти из аккаунта
              </button>
           </div>
         );

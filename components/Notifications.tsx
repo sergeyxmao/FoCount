@@ -33,6 +33,14 @@ const Notifications: React.FC<NotificationsProps> = ({
       console.error('Не удалось отметить уведомление прочитанным', error);
     }
   }
+  async function handleResponseNotificationClick(notification: Notification) {
+    try {
+      await onMarkAsRead(notification);
+      setNotifications(prev => prev.filter(n => n.id !== notification.id));
+    } catch (error) {
+      console.error('Не удалось отметить уведомление прочитанным', error);
+    }
+  }
 
   async function handleAccept(event: React.MouseEvent, notification: Notification) {
     event.stopPropagation();
@@ -71,13 +79,18 @@ const Notifications: React.FC<NotificationsProps> = ({
         ) : (
           unreadNotifications.map(notif => {
             const sender = partners.find(p => p.id === notif.fromUserId);
-            
+             const isRelationshipResponse = notif.type === 'relationship_response';           
             return (
               <div
                 key={notif.id}
                 className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
-                onClick={() => handleNotificationClick(notif)}
-              >
+                onClick={() => {
+                  if (isRelationshipResponse) {
+                    handleResponseNotificationClick(notif);
+                  } else {
+                    handleNotificationClick(notif);
+                  }
+                }}              >
                 <div className="flex gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
                         {sender ? <img src={sender.avatar} alt="" /> : <Icons.User />}

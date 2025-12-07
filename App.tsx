@@ -327,26 +327,43 @@ const App: React.FC = () => {
 
   const handleSendMessage = async (text: string) => {
     if (!currentUser) return;
+	  
     if (broadcastMode.active) {
-        alert('Рассылка пока работает только визуально');
-        setBroadcastMode({ active: false });
-        return;
+      try {
+        const recipientIds = broadcastMode.targets?.map(p => p.id) || [];
+        const result = await api.sendBroadcast(recipientIds, text);
+        
+        if (result.success) {
+          alert(`Рассылка завершена!\nОтправлено: ${result.sent}\nОшибок: ${result.failed}`);
+        } else {
+          alert('Ошибка рассылки');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Ошибка при отправке рассылки');
+      }
+      setBroadcastMode({ active: false });
+      return;
     }
+	  
     if (activeChatId) {
-        try {
-            const tempId = Date.now().toString();
-            setChats(prev => prev.map(chat => {
-                if (chat.id === activeChatId) {
-                    return {
-                        ...chat,
-                        messages: [...chat.messages, { id: tempId, senderId: currentUser.id, text: text, timestamp: Date.now() }],
-                        lastMessageTime: Date.now()
-                    };
-                }
-                return chat;
-            }));
-            await api.sendMessage(activeChatId, text);
-        } catch (e) { console.error(e); alert('Ошибка при отправке'); }
+      try {
+        const tempId = Date.now().toString();
+        setChats(prev => prev.map(chat => {
+          if (chat.id === activeChatId) {
+            return {
+              ...chat,
+              messages: [...chat.messages, { id: tempId, senderId: currentUser.id, text: text, timestamp: Date.now() }],
+              lastMessageTime: Date.now()
+            };
+          }
+          return chat;
+        }));
+        await api.sendMessage(activeChatId, text);
+      } catch (e) { 
+        console.error(e); 
+        alert('Ошибка при отправке'); 
+      }
     }
   };
   

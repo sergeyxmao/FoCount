@@ -107,10 +107,17 @@ const App: React.FC = () => {
           try {
               const data = await api.getChatMessages(activeChatId);
               if (data.success) {
-                  setChats(prev => prev.map(c => c.id === activeChatId ? { ...c, messages: data.messages } : c));
-              }
+                  setChats(prev => prev.map(c => 
+                    c.id === activeChatId 
+                      ? { ...c, messages: data.messages, unreadCount: 0 } 
+                      : c
+                  ));
+                  // Отметить как прочитанное
+                  await api.markChatAsRead(activeChatId);
+			  }
           } catch (e) { console.error(e); }
       };
+	  
       loadMessages();
       const interval = setInterval(loadMessages, 5000);
       return () => clearInterval(interval);
@@ -543,8 +550,8 @@ const App: React.FC = () => {
                      const p = partners.find(x => x.id === pid);
                      if (!p) return null;
                      const lastMsg = chat.messages[chat.messages.length - 1];
-                     const msgCount = chat.messages.length; 
-
+                     const msgCount = chat.unreadCount || 0;
+				 
                      return (
                          <div key={chat.id} onClick={() => setActiveChatId(chat.id)} className="bg-white p-4 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-gray-50 flex items-center gap-4 active:scale-[0.98] transition-all">
                              <div className="relative">

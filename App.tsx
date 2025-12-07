@@ -48,6 +48,23 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const loadFavorites = async () => {
+      try {
+        const data = await api.getFavorites();
+        if (data?.success && Array.isArray(data.favorites)) {
+          setFavorites(data.favorites.map(String));
+        }
+      } catch (e) {
+        console.error('Failed to load favorites', e);
+      }
+    };
+
+    loadFavorites();
+  }, [isAuthenticated]);	
   const loadRelationships = async () => {
     try {
       const rels = await api.getMyRelationships();
@@ -154,6 +171,20 @@ const App: React.FC = () => {
           alert('Связь удалена');
       } catch (e) { console.error(e); alert('Ошибка удаления'); }
   };
+
+  const handleToggleFavorite = async (id: string) => {
+    try {
+      if (favorites.includes(id)) {
+        await api.removeFavorite(id);
+        setFavorites(prev => prev.filter(x => x !== id));
+      } else {
+        await api.addFavorite(id);
+        setFavorites(prev => [...prev, id]);
+      }
+    } catch (e) {
+      console.error('Failed to toggle favorite', e);
+    }
+  };	
   const markNotificationAsRead = async (notif: Notification) => {
   
     try {
@@ -417,16 +448,16 @@ const App: React.FC = () => {
 
   if (selectedPartner) {
     return (
-      <PartnerDetail 
-        partner={selectedPartner} 
+      <PartnerDetail
+        partner={selectedPartner}
         currentUserRole={currentUser!.role}
         onBack={() => setSelectedPartner(null)}
         isFavorite={favorites.includes(selectedPartner.id)}
-        onToggleFavorite={(id) => setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])}
-        relationshipStatus={getRelationshipStatus(selectedPartner.id)}
+        onToggleFavorite={handleToggleFavorite}
+		relationshipStatus={getRelationshipStatus(selectedPartner.id)}
         onSendRequest={handleSendRequest}
-		onDeleteRelationship={handleDeleteRelationship}
-        onStartChat={handleStartChat}
+        onDeleteRelationship={handleDeleteRelationship}
+		onStartChat={handleStartChat}
       />
     );
   }
@@ -446,12 +477,25 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'favorites': {
+        const favoritePartners = partners.filter(p => favorites.includes(p.id));
+        return (
+          <PartnerList
+            activeTab="global"
+            partners={favoritePartners}
+            relationships={relationships}
+            onSelectPartner={(p) => setSelectedPartner(p)}
+            currentUser={currentUser}
+            onBroadcast={handleBroadcastStart}
+          />
+        );
+      }			
       case 'team':
       case 'global':
       case 'offices':
         return (
-          <PartnerList 
-            activeTab={activeTab}
+          <PartnerList
+			activeTab={activeTab}
             partners={partners} 
             relationships={relationships}
             onSelectPartner={(p) => setSelectedPartner(p)} 
@@ -681,11 +725,9 @@ const App: React.FC = () => {
           {!isClient && (
             <NavBtn icon={<Icons.Users size={22} />} label="Команда" active={activeTab === 'team'} onClick={() => setActiveTab('team')} />
           )}
-          <NavBtn icon={<Icons.Briefcase size={22} />} label="Офисы" active={activeTab === 'offices'} onClick={() => setActiveTab('offices')} />
-          <NavBtn icon={<Icons.Globe size={22} />} label="Мир" active={activeTab === 'global'} onClick={() => setActiveTab('global')} />
+          <NavBtn icon={<Icons.Star size={22} filled={activeTab === 'favorites'} />} label="Избранное" active={activeTab === 'favorites'} onClick={() => setActiveTab('favorites')} />          <NavBtn icon={<Icons.Globe size={22} />} label="Мир" active={activeTab === 'global'} onClick={() => setActiveTab('global')} />
           {!isClient && (
-             <NavBtn icon={<Icons.Message size={22} />} label="Чаты" active={activeTab === 'chats'} onClick={() => setActiveTab('chats')} />
-          )}
+            <NavBtn icon={<Icons.Message size={22} />} label="Чаты" active={activeTab === 'chats'} onClick={() => setActiveTab('chats')} />          )}
           <NavBtn icon={<Icons.User size={22} />} label="Профиль" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
         </div>
       </nav>

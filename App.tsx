@@ -139,6 +139,10 @@ const App: React.FC = () => {
     if (!currentUser || !selectedPartner) return;
     try {
       const response = await api.createRelationship(selectedPartner.id, type);
+      if (response?.alreadyExists) {
+        await loadRelationships();
+        return;
+      }		
       if (response.success && response.relationship) {
            const newRel = {
                ...response.relationship,

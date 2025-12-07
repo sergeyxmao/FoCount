@@ -104,7 +104,7 @@ export interface Chat {
   lastMessageTime: number;
 }
 
-export type AppTab = 'team' | 'offices' | 'global' | 'assistant' | 'profile' | 'chats';
+export type AppTab = 'team' | 'global' | 'offices' | 'assistant' | 'chats' | 'profile' | 'favorites';
 export type TeamSubTab = 'mentors' | 'structure' | 'ranks';
 
 export interface User extends Partner {

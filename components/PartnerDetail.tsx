@@ -29,7 +29,7 @@ interface PartnerDetailProps {
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
   relationshipStatus: 'none' | 'pending' | 'confirmed' | 'rejected';
-  onSendRequest: (type: 'mentor' | 'downline') => void;
+  onSendRequest: (partnerId: string, type: 'mentor' | 'downline') => void;
   onStartChat: () => void;
   onDeleteRelationship: (id: string) => void;
 }
@@ -138,14 +138,14 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
                     </button>
                 ) : (
                     <>
-                        <button 
-                            onClick={() => onSendRequest('mentor')}
+                        <button
+                            onClick={() => onSendRequest(partner.id, 'mentor')}
                             className="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-amber-100"
                         >
                             + В Наставники
                         </button>
-                        <button 
-                            onClick={() => onSendRequest('downline')}
+                        <button
+                            onClick={() => onSendRequest(partner.id, 'downline')}
                             className="bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold active:bg-gray-100"
                         >
                             + В Партнеры

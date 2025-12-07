@@ -100,7 +100,7 @@ export const api = {
       }
 
       const user: User = {
-        id: data.user.id.toString(),
+        id: Number(data.user.id),
         fohowId: data.user.personal_id || data.user.email,
         role: data.user.fohow_role || 'client',
         isVerified: data.user.is_verified || false,
@@ -222,7 +222,7 @@ export const api = {
       }
 
       return partnersData.map((p: any) => ({
-        id: p.id.toString(),
+        id: Number(p.id),
         fohowId: p.personal_id || p.email,
         name: p.full_name || p.username,
         rank: p.rank || Rank.NOVICE,
@@ -379,9 +379,9 @@ export const api = {
       rawRelationships = [];
     }
     const normalizedRelationships = rawRelationships.map((r) => ({
-      id: String(r.id),
-      initiatorId: String(r.initiatorId ?? r.initiator_id),
-      targetId: String(r.targetId ?? r.target_id),
+      id: Number(r.id),
+      initiatorId: Number(r.initiatorId ?? r.initiator_id),
+      targetId: Number(r.targetId ?? r.target_id),
       type: r.type,
       status: r.status,
     }));

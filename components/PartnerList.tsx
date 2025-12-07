@@ -220,12 +220,14 @@ const PartnerList: React.FC<PartnerListProps> = ({
                      )}
                      
                      {/* Decorative icon on right (Trash for team, Arrow for global) */}
-                     {isConnected && (
-                         <div className="text-gray-300 hover:text-red-400 transition-colors">
-                            {/* Visual only here, action is in Detail view as per logic */}
-                            <Icons.Trash size={16} /> 
-                         </div>
-                     )}
+{isConnected && (
+  <div className="text-gray-300 hover:text-red-400 transition-colors">
+    {/* Только декоративный крестик, без отдельного компонента,
+       чтобы исключить ошибку React #130 */}
+    <span className="text-lg leading-none">×</span>
+  </div>
+)}
+
                   </div>
                 </div>
               </div>

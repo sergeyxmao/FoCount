@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect, useRef } from 'react';
 import { Icons, MOCK_NOTIFICATIONS } from './constants';
 import { AppTab, Partner, User, Relationship, Notification, Chat, RelationshipType, Rank } from './types';
 import PartnerList from './components/PartnerList';
@@ -28,9 +28,12 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>('global');
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [favoriteLoadingId, setFavoriteLoadingId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);	
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null); 
+	
   // Broadcast State
   const [broadcastMode, setBroadcastMode] = useState<{ active: boolean, rank?: string, targets?: Partner[] }>({ active: false });
 
@@ -173,18 +176,38 @@ const App: React.FC = () => {
   };
 
   const handleToggleFavorite = async (id: string) => {
+    setFavoriteLoadingId(id);	  
     try {
       if (favorites.includes(id)) {
         await api.removeFavorite(id);
         setFavorites(prev => prev.filter(x => x !== id));
+        showToast('Удалено из избранного');		  
       } else {
         await api.addFavorite(id);
         setFavorites(prev => [...prev, id]);
+        showToast('Добавлено в избранное');		  
       }
     } catch (e) {
       console.error('Failed to toggle favorite', e);
+      alert('Ошибка при обновлении избранного');
+    } finally {
+      setFavoriteLoadingId(null);
     }
-  };	
+  };
+
+  const showToast = (message: string) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);		
+    }
+    setToastMessage(message);
+    toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 2200);
+  };
+
+  useEffect(() => () => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+  }, []);	
   const markNotificationAsRead = async (notif: Notification) => {
   
     try {
@@ -453,12 +476,13 @@ const App: React.FC = () => {
         currentUserRole={currentUser!.role}
         onBack={() => setSelectedPartner(null)}
         isFavorite={favorites.includes(selectedPartner.id)}
+        isFavoriteLoading={favoriteLoadingId === selectedPartner.id}		  
         onToggleFavorite={handleToggleFavorite}
-		relationshipStatus={getRelationshipStatus(selectedPartner.id)}
-        onSendRequest={handleSendRequest}
+                relationshipStatus={getRelationshipStatus(selectedPartner.id)}
+		  onSendRequest={handleSendRequest}
         onDeleteRelationship={handleDeleteRelationship}
-		onStartChat={handleStartChat}
-      />
+                onStartChat={handleStartChat}
+		  />
     );
   }
 
@@ -718,7 +742,15 @@ const App: React.FC = () => {
       <main className="flex-1 overflow-y-auto no-scrollbar pb-4">
         {renderContent()}
       </main>
-
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-20 z-50">
+          <div className="bg-gray-900 text-white px-4 py-2.5 rounded-full shadow-xl text-sm font-medium flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            {toastMessage}
+          </div>
+        </div>
+      )}
       {/* Navigation - Floating Sheet Style */}
       <nav className="bg-white rounded-t-[30px] shadow-[0_-5px_20px_rgba(212,175,55,0.15)] px-4 py-3 pb-safe flex-shrink-0 z-30">
         <div className="flex justify-around items-center">

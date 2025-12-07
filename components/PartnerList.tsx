@@ -11,10 +11,14 @@ interface PartnerListProps {
   onBroadcast?: (rank: Rank, partners: Partner[]) => void;
 }
 
-const PartnerList: React.FC<PartnerListProps> = ({ 
-  activeTab, 
-  partners, 
-  relationships, 
+const safeLower = (value: string | null | undefined): string => {
+  return String(value ?? '').toLowerCase();
+};
+
+const PartnerList: React.FC<PartnerListProps> = ({
+  activeTab,
+  partners,
+  relationships,
   onSelectPartner, 
   currentUser,
   onBroadcast
@@ -28,25 +32,25 @@ const PartnerList: React.FC<PartnerListProps> = ({
   const filteredList = useMemo(() => {
     if (!currentUser) return [];
 
-    let list = partners.filter(p => p.id !== currentUser.id); 
+    let list = partners.filter(p => p.id !== currentUser.id);
     const s = search.toLowerCase().trim();
 
     if (activeTab === 'offices') {
-        return list.filter(p => 
-            p.isOffice && (
-                p.city.toLowerCase().includes(s) || 
-                p.name.toLowerCase().includes(s) ||
-                p.country.toLowerCase().includes(s)
+        return list.filter(p =>
+          p.isOffice && (
+                safeLower(p.city).includes(s) ||
+                safeLower(p.name).includes(s) ||
+                safeLower(p.country).includes(s)
             )
         );
     }
 
     if (activeTab === 'global') {
-        return list.filter(p => 
-            p.fohowId.toLowerCase().includes(s) ||
-            p.city.toLowerCase().includes(s) ||
-            p.country.toLowerCase().includes(s) ||
-            p.name.toLowerCase().includes(s)
+        return list.filter(p =>
+            safeLower(p.fohowId).includes(s) ||
+            safeLower(p.city).includes(s) ||
+            safeLower(p.country).includes(s) ||
+            safeLower(p.name).includes(s)
         );
     }
 
@@ -72,11 +76,11 @@ const PartnerList: React.FC<PartnerListProps> = ({
             }
         }
 
-        return list.filter(p => 
-            p.name.toLowerCase().includes(s) || 
-            p.fohowId.toLowerCase().includes(s) || 
-            p.city.toLowerCase().includes(s) || 
-            p.country.toLowerCase().includes(s)
+        return list.filter(p =>
+            safeLower(p.name).includes(s) ||
+            safeLower(p.fohowId).includes(s) ||
+            safeLower(p.city).includes(s) ||
+            safeLower(p.country).includes(s)
         );
     }
 

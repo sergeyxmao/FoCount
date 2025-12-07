@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { registerProxyRoutes } from './routes/proxy.js';
 import { registerChatRoutes } from './routes/chats.js';
 import { registerNotificationRoutes } from './routes/notifications.js';
+import { registerFavoriteRoutes } from './routes/favorites.js';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ async function authenticateToken(req, reply) {
 registerProxyRoutes(app, pool, authenticateToken);
 registerChatRoutes(app, pool, authenticateToken);
 registerNotificationRoutes(app, pool, authenticateToken);
+registerFavoriteRoutes(app, pool, authenticateToken);
 
 // Healthcheck
 app.get('/health', async () => {

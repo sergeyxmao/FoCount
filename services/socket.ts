@@ -1,10 +1,44 @@
-import { io, Socket } from 'socket.io-client';
-
 const SOCKET_URL = 'http://localhost:4001';
+const SOCKET_MODULE_URL =
+  'https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.esm.min.js';
 
+type EventCallback = (...args: any[]) => void;
+
+type SocketClient = {
+  connected: boolean;
+  on: (event: string, callback: EventCallback) => void;
+  off: (event: string, callback?: EventCallback) => void;
+  emit: (event: string, payload?: any) => void;
+  disconnect: () => void;
+};
+
+type SocketIoModule = {
+  io: (url: string, options?: Record<string, unknown>) => SocketClient;
+};
 class SocketService {
-  private socket: Socket | null = null;
+  private socket: SocketClient | null = null;
   private token: string | null = null;
+  private modulePromise: Promise<SocketIoModule | null> | null = null;
+
+  private loadSocketModule() {
+    if (!this.modulePromise) {
+      this.modulePromise = import(/* @vite-ignore */ SOCKET_MODULE_URL)
+        .then((module) => {
+          if (module && 'io' in module) {
+            return module as SocketIoModule;
+          }
+
+          console.error('[WebSocket] socket.io-client module did not provide io()');
+          return null;
+        })
+        .catch((error) => {
+          console.error('[WebSocket] Failed to load socket.io-client from CDN:', error);
+          return null;
+        });
+    }
+
+    return this.modulePromise;
+  }
 
   connect(token: string) {
     if (this.socket?.connected) {
@@ -12,20 +46,27 @@ class SocketService {
     }
 
     this.token = token;
-    this.socket = io(SOCKET_URL, {
-      auth: { token }
-    });
 
-    this.socket.on('connect', () => {
-      console.log('[WebSocket] Connected');
-    });
+    this.loadSocketModule().then((module) => {
+      if (!module) {
+        return;
+      }
 
-    this.socket.on('disconnect', () => {
-      console.log('[WebSocket] Disconnected');
-    });
+      this.socket = module.io(SOCKET_URL, {
+        auth: { token }
+      });
 
-    this.socket.on('connect_error', (err) => {
-      console.error('[WebSocket] Connection error:', err.message);
+      this.socket.on('connect', () => {
+        console.log('[WebSocket] Connected');
+      });
+
+      this.socket.on('disconnect', () => {
+        console.log('[WebSocket] Disconnected');
+      });
+
+      this.socket.on('connect_error', (err) => {
+        console.error('[WebSocket] Connection error:', (err as Error).message ?? err);
+      });
     });
   }
 

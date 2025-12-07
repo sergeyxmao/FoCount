@@ -1,14 +1,25 @@
-import { io, Socket } from 'socket.io-client';
-
 const SOCKET_URL = 'https://interactive.marketingfohow.ru:4001';
 
+let io: any = null;
+
 class SocketService {
-  private socket: Socket | null = null;
+  private socket: any = null;
   private token: string | null = null;
 
-  connect(token: string) {
+  async connect(token: string) {
     if (this.socket?.connected) {
       return;
+    }
+
+    // Загружаем socket.io-client из CDN
+    if (!io) {
+      try {
+        const module = await import('https://cdn.socket.io/4.5.4/socket.io.esm.min.js');
+        io = module.io;
+      } catch (err) {
+        console.error('[WebSocket] Failed to load socket.io-client:', err);
+        return;
+      }
     }
 
     this.token = token;
@@ -24,8 +35,8 @@ class SocketService {
       console.log('[WebSocket] Disconnected');
     });
 
-    this.socket.on('connect_error', (err) => {
-      console.error('[WebSocket] Connection error:', err.message);
+    this.socket.on('connect_error', (err: any) => {
+      console.error('[WebSocket] Connection error:', err.message || err);
     });
   }
 

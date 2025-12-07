@@ -1,0 +1,17 @@
+[0;1;32m●[0m fogrup-api.service - FOgrup Partner Directory API
+     Loaded: loaded (/etc/systemd/system/fogrup-api.service; disabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Wed 2025-12-03 14:15:03 UTC; 5s ago
+   Main PID: 137545 (node)
+      Tasks: 23 (limit: 2309)
+     Memory: 84.5M
+        CPU: 947ms
+     CGroup: /system.slice/fogrup-api.service
+             ├─137545 node /usr/bin/pnpm start
+             ├─137559 sh -c "node index.js"
+             └─137560 node index.js
+
+Dec 03 14:15:03 ryguvedcgp systemd[1]: Started FOgrup Partner Directory API.
+Dec 03 14:15:04 ryguvedcgp pnpm[137545]: > focount-api@1.0.0 start /var/www/FoCount/api
+Dec 03 14:15:04 ryguvedcgp pnpm[137545]: > node index.js
+Dec 03 14:15:04 ryguvedcgp pnpm[137560]: {"level":30,"time":1764771304796,"pid":137560,"hostname":"ryguvedcgp","msg":"Server listening at http://0.0.0.0:4001"}
+Dec 03 14:15:04 ryguvedcgp pnpm[137560]: 🚀 FOgrup API running on http://0.0.0.0:4001

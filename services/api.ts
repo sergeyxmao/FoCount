@@ -330,8 +330,24 @@ export const api = {
       },
       body: JSON.stringify({ targetId, type }),
     });
-    
-    if (!response.ok) throw new Error('Не удалось создать запрос');
+
+    if (!response.ok) {
+      let errorBody: any = null;
+      try {
+        errorBody = await response.json();
+      } catch (_) {
+        // тело может быть пустым – игнорируем
+      }
+
+      if (response.status === 409 && errorBody?.error === 'Связь уже существует') {
+        return {
+          success: true,
+          alreadyExists: true,
+        };
+      }
+
+      throw new Error(errorBody?.error || 'Не удалось создать запрос');
+    }
     return response.json();
   },
 

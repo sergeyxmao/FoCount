@@ -359,13 +359,30 @@ export const api = {
   getMyRelationships: async () => {
     const token = localStorage.getItem('fohow_token');
     const response = await fetch(`${API_BASE_URL}/relationships/my`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
     });
-    
-    if (!response.ok) throw new Error('Не удалось загрузить связи');
-    return response.json();
+
+    if (!response.ok) {
+      throw new Error('Не удалось загрузить связи');
+    }
+
+    const data = await response.json();
+
+    // Нормализация массива связей под тип Relationship (строковые id + camelCase)
+    const normalizedRelationships = Array.isArray(data.relationships)
+      ? data.relationships.map((r: any) => ({
+          id: String(r.id),
+          initiatorId: String(r.initiatorId ?? r.initiator_id),
+          targetId: String(r.targetId ?? r.target_id),
+          type: r.type,
+          status: r.status,
+        }))
+      : [];
+
+    return {
+      ...data,
+      relationships: normalizedRelationships,
+    };
   },
 
   /**
